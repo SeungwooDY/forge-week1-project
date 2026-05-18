@@ -7,7 +7,7 @@ function Navbar() {
             <Link to="/dashboard">Dashboard</Link>
             <Link to="/classes">Classes</Link>
             <Link to="/students">Students</Link>
-            <Link to="/teacherdirectory">TeacherDirectory</Link>
+            <Link to="/teachers">Teacher Directory</Link>
             <Link to="/calendar">Calendar</Link>
             <Link to="/teacher-dashboard">Teacher Dashboard</Link>
         </nav>
