@@ -1,18 +1,3 @@
-// import { Link, useLocation } from 'react-router-dom'
-
-// export default function Navbar() {
-//     return (
-//         <nav className="bg-amber-100">
-//             <Link to="/">Home</Link>
-//             <Link to="/dashboard">Dashboard</Link>
-//             <Link to="/classes">Classes</Link>
-//             <Link to="/students">Students</Link>
-//             <Link to="/teacherdirectory">Teachers</Link>
-//             <Link to="/calendar">Calendar</Link>
-//         </nav>
-//     )
-// }
-
 import { Link, useLocation } from 'react-router-dom'
 
 const links = [
@@ -28,12 +13,12 @@ export default function Navbar() {
     const { pathname } = useLocation()
 
     return (
-        <nav className="flex items-center justify-between px-8 py-4 bg-white border-b border-slate-200">
-            <span className="text-slate-800 font-semibold tracking-tight text-lg">
+        <nav className="flex flex-col items-center w-56 h-screen px-8 py-4 bg-white border-r border-slate-200">
+            <span className="text-slate-800 font-semibold tracking-tight mb-6 text-lg">
                 🎓 TJES
             </span>
 
-            <ul className="flex items-center gap-1">
+            <ul className="flex flex-col gap-1">
                 {links.map(({ to, label }) => {
                     const active = pathname === to
                     return (
