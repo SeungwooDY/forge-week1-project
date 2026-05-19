@@ -1,8 +1,9 @@
+import Sidebar from '../components/Sidebar'
+
 function Dashboard() {
     return (
         <div>
-            <h1>Dashboard</h1>
-            <p>Overall dashboard of all classes.</p>
+            <Sidebar />
         </div>
     )
 }

@@ -1,32 +1,28 @@
 import { Routes, Route } from 'react-router-dom'
 import Navbar from './components/Navbar'
 
+import './index.css'
+
 import Home from './pages/Home'
 import Dashboard from './pages/Dashboard'
 import Classes from './pages/Classes'
 import ClassPage from './pages/ClassPage'
 import Students from './pages/Students'
-import TeacherDirectory from './pages/TeacherDirectory'
+import Teachers from './pages/Teachers'
 import Calendar from './pages/Calendar'
-import TeacherDashboard from './pages/TeacherDashboard'
 
-function App() {
+export default function App() {
     return (
         <>
-            <Navbar />
-
             <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/classes" element={<Classes />} />
                 <Route path="/classes/:classId" element={<ClassPage />} />
                 <Route path="/students" element={<Students />} />
-                <Route path="/teacherdirectory" element={<TeacherDirectory />} />
+                <Route path="/teachers" element={<Teachers />} />
                 <Route path="/calendar" element={<Calendar />} />
-                <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
             </Routes>
         </>
     )
 }
-
-export default App

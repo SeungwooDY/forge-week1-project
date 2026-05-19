@@ -1,8 +1,9 @@
+import Navbar from "../components/Navbar"
+
 function Home() {
     return (
         <div>
-            <h1>Home</h1>
-            <p>View the various features of the web app and navigate to them here.</p>
+            <Navbar />
         </div>
     )
 }
