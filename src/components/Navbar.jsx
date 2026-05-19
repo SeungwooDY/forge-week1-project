@@ -1,18 +1,3 @@
-// import { Link, useLocation } from 'react-router-dom'
-
-// export default function Navbar() {
-//     return (
-//         <nav className="bg-amber-100">
-//             <Link to="/">Home</Link>
-//             <Link to="/dashboard">Dashboard</Link>
-//             <Link to="/classes">Classes</Link>
-//             <Link to="/students">Students</Link>
-//             <Link to="/teacherdirectory">Teachers</Link>
-//             <Link to="/calendar">Calendar</Link>
-//         </nav>
-//     )
-// }
-
 import { Link, useLocation } from 'react-router-dom'
 
 const links = [

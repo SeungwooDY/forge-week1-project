@@ -1,6 +1,6 @@
 import Sidebar from '../components/Sidebar'
 
-function TeacherDashboard() {
+function Teachers() {
     return (
         <div>
             <Sidebar />
@@ -8,4 +8,4 @@ function TeacherDashboard() {
     )
 }
 
-export default TeacherDashboard
+export default Teachers

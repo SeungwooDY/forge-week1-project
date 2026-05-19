@@ -15,9 +15,8 @@ import Dashboard from './pages/Dashboard.jsx'
 import Classes from './pages/Classes.jsx'
 import ClassPage from './pages/ClassPage.jsx'
 import Students from './pages/Students.jsx'
-import TeacherDirectory from './pages/TeacherDirectory.jsx'
+import Teachers from './pages/Teachers.jsx'
 import Calendar from './pages/Calendar.jsx'
-import TeacherDashboard from './pages/TeacherDashboard.jsx'
 
 const router = createBrowserRouter([
     {
@@ -46,15 +45,11 @@ const router = createBrowserRouter([
             },
             {
                 path: 'teachers',
-                element: <TeacherDirectory />,
+                element: <Teachers />,
             },
             {
                 path: 'calendar',
                 element: <Calendar />,
-            },
-            {
-                path: 'teacher-dashboard',
-                element: <TeacherDashboard />,
             },
         ],
     },
