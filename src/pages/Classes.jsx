@@ -1,9 +1,12 @@
 import Navbar from '../components/Navbar'
 import { useState, useEffect } from 'react'
 import { getAllClasses, addClass, deleteClass } from '../utils/classes'
+import { getAllTeachers } from '../utils/teachers'
+
 
 export default function Classes() {
     const [classes, setClasses] = useState([]);
+    const [teachers, setTeachers] = useState([]);
     const [form, setForm] = useState({
         cname: '',
         cgrade: '',
@@ -25,6 +28,15 @@ export default function Classes() {
             setClasses(data);
         } catch (error) {
             console.log("Error fetching classes", error);
+        }
+    }
+
+    const fetchTeachers = async () => {
+        try {
+            const data = await getAllTeachers();
+            setTeachers(data);
+        } catch (error) {
+            console.log("Error fetching teachers", error);
         }
     }
 
@@ -72,6 +84,7 @@ export default function Classes() {
 
     useEffect(() => {
         fetchClasses();
+        fetchTeachers();
     }, [])
 
     const input = "border border-slate-300 rounded px-2 py-1 text-sm";
@@ -155,12 +168,27 @@ export default function Classes() {
                             <input className={input} type="time" step="60" name="end_time" value={form.end_time} onChange={handleChange} />
                         </div>
                         <div className="flex flex-col">
-                            <label className={label}>Teacher ID</label>
-                            <input className={input} name="teacher_tid" value={form.teacher_tid} onChange={handleChange} />
-                        </div>
-                        <div className="flex flex-col">
-                            <label className={label}>Teacher name</label>
-                            <input className={input} name="teacher_tname" value={form.teacher_tname} onChange={handleChange} />
+                            <label className={label}>Teacher</label>
+                            <select
+                                className={input}
+                                name="teacher_tid"
+                                value={form.teacher_tid}
+                                onChange={(e) => {
+                                    const selected = teachers.find(t => t.email === e.target.value);
+                                    setForm({
+                                        ...form,
+                                        teacher_tid: e.target.value,
+                                        teacher_tname: selected?.name || '',
+                                    });
+                                }}
+                            >
+                                <option value="">Select a teacher...</option>
+                                {teachers.map((t) => (
+                                    <option key={t.id} value={t.email}>
+                                        {t.tname} ({t.email})
+                                    </option>
+                                ))}
+                            </select>
                         </div>
                     </div>
 
