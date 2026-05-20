@@ -7,6 +7,9 @@ import { getAllTeachers } from '../utils/teachers'
 export default function Classes() {
     const [classes, setClasses] = useState([]);
     const [teachers, setTeachers] = useState([]);
+    const [isFormOpen, setIsFormOpen] = useState(false);
+    const [deleteTarget, setDeleteTarget] = useState(null);
+
     const [form, setForm] = useState({
         cname: '',
         cgrade: '',
@@ -68,6 +71,10 @@ export default function Classes() {
         fetchClasses();
     }
 
+    const handleAddClass = () => {
+        setIsFormOpen(true);
+    }
+
     const handleCancel = () => {
         setForm({
             cname: '', cgrade: '', location: '', year: '',
@@ -75,10 +82,12 @@ export default function Classes() {
             teacher_tid: '', teacher_tname: '',
             gd_homework: '', gd_quiz: '', gd_tests: '', gd_project: '',
         });
+        setIsFormOpen(false);
     }
 
     const handleDelete = async (id) => {
         await deleteClass(id);
+        setDeleteTarget(null);
         fetchClasses();
     }
 
@@ -93,7 +102,15 @@ export default function Classes() {
     return (
         <>
             <Navbar />
-
+            <div className="flex justify-center p-4">
+                <button
+                    onClick={handleAddClass}
+                    className="px-4 py-2 border-2 rounded-2xl"
+                >
+                    Add Class
+                </button>
+            </div>
+                <br />
             <div className="overflow-auto" style={{ height: 'calc(100vh - 64px)' }}>
                 <table className="min-w-full">
                     <thead className="sticky top-0 bg-white border-b border-slate-200">
@@ -128,10 +145,10 @@ export default function Classes() {
                                 </td>
                                 <td className="px-4 py-3">
                                     <button
-                                        onClick={() => handleDelete(c.id)}
-                                        className="text-red-600 hover:text-red-800 text-xs"
+                                        onClick={() => setDeleteTarget(c)}
+                                        className="text-red-600 hover:text-red-800 text-xs border-2 p-2 rounded-2xl"
                                     >
-                                        Delete
+                                        DELETE
                                     </button>
                                 </td>
                             </tr>
@@ -139,89 +156,119 @@ export default function Classes() {
                     </tbody>
                 </table>
 
-                <div className="border-t border-slate-200 mt-6 p-6">
-                    <h2 className="text-lg font-semibold text-slate-800 mb-4">Add Class</h2>
-
-                    <div className="grid grid-cols-2 gap-4 max-w-2xl">
-                        <div className="flex flex-col">
-                            <label className={label}>Class name</label>
-                            <input className={input} name="cname" value={form.cname} onChange={handleChange} />
-                        </div>
-                        <div className="flex flex-col">
-                            <label className={label}>Grade</label>
-                            <input className={input} name="cgrade" value={form.cgrade} onChange={handleChange} />
-                        </div>
-                        <div className="flex flex-col">
-                            <label className={label}>Location</label>
-                            <input className={input} name="location" value={form.location} onChange={handleChange} />
-                        </div>
-                        <div className="flex flex-col">
-                            <label className={label}>Year</label>
-                            <input className={input} name="year" value={form.year} onChange={handleChange} />
-                        </div>
-                        <div className="flex flex-col">
-                            <label className={label}>Start time</label>
-                            <input className={input} type="time" step="60" name="start_time" value={form.start_time} onChange={handleChange} />
-                        </div>
-                        <div className="flex flex-col">
-                            <label className={label}>End time</label>
-                            <input className={input} type="time" step="60" name="end_time" value={form.end_time} onChange={handleChange} />
-                        </div>
-                        <div className="flex flex-col">
-                            <label className={label}>Teacher</label>
-                            <select
-                                className={input}
-                                name="teacher_tid"
-                                value={form.teacher_tid}
-                                onChange={(e) => {
-                                    const selected = teachers.find(t => t.email === e.target.value);
-                                    setForm({
-                                        ...form,
-                                        teacher_tid: e.target.value,
-                                        teacher_tname: selected?.name || '',
-                                    });
-                                }}
-                            >
-                                <option value="">Select a teacher...</option>
-                                {teachers.map((t) => (
-                                    <option key={t.id} value={t.email}>
-                                        {t.tname} ({t.email})
-                                    </option>
-                                ))}
-                            </select>
+                {deleteTarget && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+                        onClick={() => setDeleteTarget(null)}>
+                        <div className="bg-white rounded-lg shadow-xl p-6 max-w-sm w-full"
+                            onClick={(e) => e.stopPropagation()}>
+                            <h2 className="text-lg font-semibold text-slate-800 mb-2">Delete class?</h2>
+                            <p className="text-sm text-slate-600 mb-4">
+                                Are you sure you want to delete <strong>{deleteTarget.cname}</strong>?
+                            </p>
+                            <div className="flex gap-3 justify-end">
+                                <button onClick={() => setDeleteTarget(null)}
+                                        className="px-4 py-2 border border-slate-300 text-slate-700 text-sm rounded hover:bg-slate-50">
+                                    Cancel
+                                </button>
+                                <button onClick={() => handleDelete(deleteTarget.id)}
+                                        className="px-4 py-2 bg-red-600 text-white text-sm rounded hover:bg-red-700">
+                                    Delete
+                                </button>
+                            </div>
                         </div>
                     </div>
+                )}
 
-                    <h3 className="text-sm font-semibold text-slate-700 mt-6 mb-2">Grade distribution (%)</h3>
-                    <div className="grid grid-cols-4 gap-4 max-w-2xl">
-                        <div className="flex flex-col">
-                            <label className={label}>Homework</label>
-                            <input className={input} type="number" name="gd_homework" value={form.gd_homework} onChange={handleChange} />
-                        </div>
-                        <div className="flex flex-col">
-                            <label className={label}>Quiz</label>
-                            <input className={input} type="number" name="gd_quiz" value={form.gd_quiz} onChange={handleChange} />
-                        </div>
-                        <div className="flex flex-col">
-                            <label className={label}>Tests</label>
-                            <input className={input} type="number" name="gd_tests" value={form.gd_tests} onChange={handleChange} />
-                        </div>
-                        <div className="flex flex-col">
-                            <label className={label}>Project</label>
-                            <input className={input} type="number" name="gd_project" value={form.gd_project} onChange={handleChange} />
-                        </div>
-                    </div>
+                    {/* Add class form */}
+                    {isFormOpen && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+                            onClick={handleCancel}>
+                            <div className="bg-white rounded-lg shadow-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-auto"
+                                onClick={(e) => e.stopPropagation()}>
+                                <h2 className="text-lg font-semibold text-slate-800 mb-4">Add Class</h2>
 
-                    <div className="flex gap-3 mt-6">
-                        <button onClick={handleSubmit} className="px-4 py-2 bg-slate-800 text-white text-sm rounded hover:bg-slate-700">
-                            Submit
-                        </button>
-                        <button onClick={handleCancel} className="px-4 py-2 border border-slate-300 text-slate-700 text-sm rounded hover:bg-slate-50">
-                            Cancel
-                        </button>
-                    </div>
-                </div>
-            </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="flex flex-col">
+                                        <label className={label}>Class name</label>
+                                        <input className={input} name="cname" value={form.cname} onChange={handleChange} />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <label className={label}>Grade</label>
+                                        <input className={input} name="cgrade" value={form.cgrade} onChange={handleChange} />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <label className={label}>Location</label>
+                                        <input className={input} name="location" value={form.location} onChange={handleChange} />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <label className={label}>Year</label>
+                                        <input className={input} name="year" value={form.year} onChange={handleChange} />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <label className={label}>Start time</label>
+                                        <input className={input} type="time" step="60" name="start_time" value={form.start_time} onChange={handleChange} />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <label className={label}>End time</label>
+                                        <input className={input} type="time" step="60" name="end_time" value={form.end_time} onChange={handleChange} />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <label className={label}>Teacher</label>
+                                        <select
+                                            className={input}
+                                            name="teacher_tid"
+                                            value={form.teacher_tid}
+                                            onChange={(e) => {
+                                                const selected = teachers.find(t => t.email === e.target.value);
+                                                setForm({
+                                                    ...form,
+                                                    teacher_tid: e.target.value,
+                                                    teacher_tname: selected?.tname || '',
+                                                });
+                                            }}
+                                        >
+                                            <option value="">Select a teacher...</option>
+                                            {teachers.map((t) => (
+                                                <option key={t.id} value={t.email}>
+                                                    {t.tname} ({t.email})
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <h3 className="text-sm font-semibold text-slate-700 mt-6 mb-2">Grade distribution (%)</h3>
+                                <div className="grid grid-cols-4 gap-4">
+                                    <div className="flex flex-col">
+                                        <label className={label}>Homework</label>
+                                        <input className={input} type="number" name="gd_homework" value={form.gd_homework} onChange={handleChange} />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <label className={label}>Quiz</label>
+                                        <input className={input} type="number" name="gd_quiz" value={form.gd_quiz} onChange={handleChange} />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <label className={label}>Tests</label>
+                                        <input className={input} type="number" name="gd_tests" value={form.gd_tests} onChange={handleChange} />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <label className={label}>Project</label>
+                                        <input className={input} type="number" name="gd_project" value={form.gd_project} onChange={handleChange} />
+                                    </div>
+                                </div>
+
+                                <div className="flex gap-3 mt-6 justify-end">
+                                    <button onClick={handleCancel} className="px-4 py-2 border border-slate-300 text-slate-700 text-sm rounded hover:bg-slate-50">
+                                        Cancel
+                                    </button>
+                                    <button onClick={handleSubmit} className="px-4 py-2 bg-slate-800 text-white text-sm rounded hover:bg-slate-700">
+                                        Submit
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+            </div>                    
         </>
     )
 }
