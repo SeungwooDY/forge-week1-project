@@ -1,6 +1,6 @@
 import Navbar from '../components/Navbar'
 import { useState, useEffect } from 'react'
-import { getAllClasses, addClass } from '../utils/classes'
+import { getAllClasses, addClass, deleteClass } from '../utils/classes'
 
 export default function Classes() {
     const [classes, setClasses] = useState([]);
@@ -65,8 +65,9 @@ export default function Classes() {
         });
     }
 
-    const handleDelete = () => {
-        // TODO: needs a target class id — wire up once row selection exists
+    const handleDelete = async (id) => {
+        await deleteClass(id);
+        fetchClasses();
     }
 
     useEffect(() => {
@@ -111,6 +112,14 @@ export default function Classes() {
                                         Object.entries(c.grade_distribution)
                                             .map(([category, percent]) => `${percent}% ${category}`)
                                             .join(', ')}
+                                </td>
+                                <td className="px-4 py-3">
+                                    <button
+                                        onClick={() => handleDelete(c.id)}
+                                        className="text-red-600 hover:text-red-800 text-xs"
+                                    >
+                                        Delete
+                                    </button>
                                 </td>
                             </tr>
                         ))}
@@ -181,9 +190,6 @@ export default function Classes() {
                         </button>
                         <button onClick={handleCancel} className="px-4 py-2 border border-slate-300 text-slate-700 text-sm rounded hover:bg-slate-50">
                             Cancel
-                        </button>
-                        <button onClick={handleDelete} className="px-4 py-2 border border-red-300 text-red-600 text-sm rounded hover:bg-red-50">
-                            Delete
                         </button>
                     </div>
                 </div>
