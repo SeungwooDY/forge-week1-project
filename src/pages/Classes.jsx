@@ -11,6 +11,7 @@ export default function Classes() {
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [deleteTarget, setDeleteTarget] = useState(null);
     const [searchedClassName, setSearchedClassName] = useState('');
+    const [errors, setErrors] = useState({});
 
     const [form, setForm] = useState({
         cname: '',
@@ -54,6 +55,8 @@ export default function Classes() {
     }
 
     const handleSubmit = async () => {
+        if (!isValid()) return;
+        
         const gradeDist = {};
         if (form.gd_homework) gradeDist.homework = Number(form.gd_homework);
         if (form.gd_quiz) gradeDist.quiz = Number(form.gd_quiz);
@@ -62,9 +65,9 @@ export default function Classes() {
 
         const newClass = {
             cname: form.cname,
-            cgrade: form.cgrade,
+            cgrade: Number(form.cgrade),
             location: form.location,
-            year: form.year,
+            year: Number(form.year),
             start_time: form.start_time ? new Date(`1970-01-01T${form.start_time}`) : null,
             end_time: form.end_time ? new Date(`1970-01-01T${form.end_time}`) : null,
             teacher: { tid: form.teacher_tid, tname: form.teacher_tname },
@@ -95,6 +98,22 @@ export default function Classes() {
         await deleteClass(id);
         setDeleteTarget(null);
         fetchClasses();
+    }
+
+    const isInt = (val) => val !== '' && Number.isInteger(Number(val));
+
+    const isValid = () => {
+        const next = {};
+
+        if (form.cgrade && !isInt(form.cgrade)) next.cgrade = 'Must be a whole number';
+        if (form.year && !isInt(form.year)) next.year = 'Must be a whole number';
+        if (form.gd_homework && !isInt(form.gd_homework)) next.gd_homework = 'Whole number only';
+        if (form.gd_quiz && !isInt(form.gd_quiz)) next.gd_quiz = 'Whole number only';
+        if (form.gd_tests && !isInt(form.gd_tests)) next.gd_tests = 'Whole number only';
+        if (form.gd_project && !isInt(form.gd_project)) next.gd_project = 'Whole number only';
+
+        setErrors(next);
+        return Object.keys(next).length === 0;
     }
 
     useEffect(() => {
@@ -207,7 +226,7 @@ export default function Classes() {
                                     </div>
                                     <div className="flex flex-col">
                                         <label className={label}>Grade</label>
-                                        <input className={input} name="cgrade" value={form.cgrade} onChange={handleChange} />
+                                        <input className={input} type="number" step="1" name="cgrade" value={form.cgrade} onChange={handleChange} />
                                     </div>
                                     <div className="flex flex-col">
                                         <label className={label}>Location</label>
@@ -215,7 +234,7 @@ export default function Classes() {
                                     </div>
                                     <div className="flex flex-col">
                                         <label className={label}>Year</label>
-                                        <input className={input} name="year" value={form.year} onChange={handleChange} />
+                                        <input className={input} type="number" step="1" name="year" value={form.year} onChange={handleChange} />
                                     </div>
                                     <div className="flex flex-col">
                                         <label className={label}>Start time</label>
@@ -254,19 +273,19 @@ export default function Classes() {
                                 <div className="grid grid-cols-4 gap-4">
                                     <div className="flex flex-col">
                                         <label className={label}>Homework</label>
-                                        <input className={input} type="number" name="gd_homework" value={form.gd_homework} onChange={handleChange} />
+                                        <input className={input} type="number" step="1" name="gd_homework" value={form.gd_homework} onChange={handleChange} />
                                     </div>
                                     <div className="flex flex-col">
                                         <label className={label}>Quiz</label>
-                                        <input className={input} type="number" name="gd_quiz" value={form.gd_quiz} onChange={handleChange} />
+                                        <input className={input} type="number" step="1" name="gd_quiz" value={form.gd_quiz} onChange={handleChange} />
                                     </div>
                                     <div className="flex flex-col">
                                         <label className={label}>Tests</label>
-                                        <input className={input} type="number" name="gd_tests" value={form.gd_tests} onChange={handleChange} />
+                                        <input className={input} type="number" step="1" name="gd_tests" value={form.gd_tests} onChange={handleChange} />
                                     </div>
                                     <div className="flex flex-col">
                                         <label className={label}>Project</label>
-                                        <input className={input} type="number" name="gd_project" value={form.gd_project} onChange={handleChange} />
+                                        <input className={input} type="number" step="1" name="gd_project" value={form.gd_project} onChange={handleChange} />
                                     </div>
                                 </div>
 
