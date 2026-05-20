@@ -48,7 +48,6 @@ export default function Classes() {
     }
 
     const handleSubmit = async () => {
-        // build grade_distribution from only non-empty fields
         const gradeDist = {};
         if (form.gd_homework) gradeDist.homework = Number(form.gd_homework);
         if (form.gd_quiz) gradeDist.quiz = Number(form.gd_quiz);
@@ -96,7 +95,7 @@ export default function Classes() {
         fetchTeachers();
     }, [])
 
-    const input = "border border-slate-300 rounded px-2 py-1 text-sm";
+    const input = "border border-slate-300 rounded-2xl px-2 py-1 text-sm";
     const label = "text-xs font-medium text-slate-600 mb-1";
 
     return (
@@ -159,7 +158,7 @@ export default function Classes() {
                 {deleteTarget && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
                         onClick={() => setDeleteTarget(null)}>
-                        <div className="bg-white rounded-lg shadow-xl p-6 max-w-sm w-full"
+                        <div className="bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full"
                             onClick={(e) => e.stopPropagation()}>
                             <h2 className="text-lg font-semibold text-slate-800 mb-2">Delete class?</h2>
                             <p className="text-sm text-slate-600 mb-4">
@@ -167,11 +166,11 @@ export default function Classes() {
                             </p>
                             <div className="flex gap-3 justify-end">
                                 <button onClick={() => setDeleteTarget(null)}
-                                        className="px-4 py-2 border border-slate-300 text-slate-700 text-sm rounded hover:bg-slate-50">
+                                        className="px-4 py-2 border border-slate-300 text-slate-700 text-sm rounded-2xl hover:bg-slate-50">
                                     Cancel
                                 </button>
                                 <button onClick={() => handleDelete(deleteTarget.id)}
-                                        className="px-4 py-2 bg-red-600 text-white text-sm rounded hover:bg-red-700">
+                                        className="px-4 py-2 bg-red-600 text-white text-sm rounded-2xl hover:bg-red-700">
                                     Delete
                                 </button>
                             </div>
@@ -183,7 +182,7 @@ export default function Classes() {
                     {isFormOpen && (
                         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
                             onClick={handleCancel}>
-                            <div className="bg-white rounded-lg shadow-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-auto"
+                            <div className="bg-white rounded-2xl shadow-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-auto"
                                 onClick={(e) => e.stopPropagation()}>
                                 <h2 className="text-lg font-semibold text-slate-800 mb-4">Add Class</h2>
 
@@ -258,10 +257,10 @@ export default function Classes() {
                                 </div>
 
                                 <div className="flex gap-3 mt-6 justify-end">
-                                    <button onClick={handleCancel} className="px-4 py-2 border border-slate-300 text-slate-700 text-sm rounded hover:bg-slate-50">
+                                    <button onClick={handleCancel} className="px-4 py-2 border border-slate-300 text-slate-700 text-sm rounded-2xl hover:bg-slate-50">
                                         Cancel
                                     </button>
-                                    <button onClick={handleSubmit} className="px-4 py-2 bg-slate-800 text-white text-sm rounded hover:bg-slate-700">
+                                    <button onClick={handleSubmit} className="px-4 py-2 bg-slate-800 text-white text-sm rounded-2xl hover:bg-slate-700">
                                         Submit
                                     </button>
                                 </div>
