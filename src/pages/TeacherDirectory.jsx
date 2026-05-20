@@ -6,6 +6,7 @@ import {
     getTeacherByName,
     getClassesByTeacherName,
     deleteTeacherById,
+    updateTeacherById,
 } from "../services/teacherService";
 import TeacherCard from "../components/TeacherCard";
 
@@ -16,7 +17,9 @@ function TeacherDirectory() {
     const [searchName, setSearchName] = useState("");
     const [searchResults, setSearchResults] = useState(null);
     const [teacherToDelete, setTeacherToDelete] = useState(false);
-    // const [teacherToEdit, setTeacherToEdit] = useState(false)
+    const [teacherToEdit, setTeacherToEdit] = useState(false);
+    const [editName, setEditName] = useState("");
+    const [editEmail, setEditEmail] = useState("");
 
     useEffect(() => {
         const fetchTeachers = async () => {
@@ -76,13 +79,62 @@ function TeacherDirectory() {
         setSearchResults(null);
     };
 
-    // const handleOpenEdit = (teacher) => {
-    //     setTeacherToEdit(teacher);
-    // };
+    const handleOpenEdit = (teacher) => {
+        setTeacherToEdit(teacher);
+        setEditName(teacher.tname);
+        setEditEmail(teacher.email);
+    };
 
-    // const handleEdit = async (id) => {
+    const handleEdit = async (e) => {
+        e.preventDefault();
+        if (!teacherToEdit) return;
 
-    // }
+        try {
+            const updatePromises = [];
+
+            const isNameChanged = editName !== teacherToEdit.tname;
+            const isEmailChanged = editEmail !== teacherToEdit.email;
+
+            if (isNameChanged) {
+                updatePromises.push(
+                    updateTeacherById(teacherToEdit.id, "tname", editName),
+                );
+            }
+            if (isEmailChanged) {
+                updatePromises.push(
+                    updateTeacherById(teacherToEdit.id, "email", editEmail),
+                );
+            }
+
+            if (updatePromises.length > 0) {
+                await Promise.all(updatePromises);
+            }
+
+            const updatedTeacher = {
+                ...teacherToEdit,
+                tname: editName,
+                email: editEmail,
+            };
+
+            setTeachers((prev) =>
+                prev.map((t) =>
+                    t.id === teacherToEdit.id ? updatedTeacher : t,
+                ),
+            );
+
+            if (searchResults !== null) {
+                setSearchResults((prev) =>
+                    prev.map((t) =>
+                        t.id === teacherToEdit.id ? updatedTeacher : t,
+                    ),
+                );
+            }
+
+            setTeacherToEdit(null);
+        } catch (error) {
+            console.error("Failed to update teacher profile:", error);
+        }
+    };
 
     const handleOpenDelete = (teacher) => {
         setTeacherToDelete(teacher);
@@ -171,11 +223,78 @@ function TeacherDirectory() {
                                     teacherData={teacher}
                                     classes={teacher.classes || []}
                                     onDelete={handleOpenDelete}
-                                    // onEdit={handleOpenEdit}
+                                    onEdit={handleOpenEdit}
                                 />
                             </li>
                         ))}
                     </ul>
+                )}
+
+                {teacherToEdit && (
+                    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center z-50">
+                        <form
+                            onSubmit={handleEdit}
+                            className="bg-white p-6 rounded-xl border border-slate-200 shadow-xl max-w-md w-full mx-4"
+                        >
+                            <div className="flex items-center gap-3 mb-6">
+                                <span className="text-2xl bg-slate-100 p-2 rounded-lg">
+                                    ✏️
+                                </span>
+                                <div>
+                                    <h3 className="text-base font-semibold text-slate-950">
+                                        Update Teacher Details
+                                    </h3>
+                                </div>
+                            </div>
+
+                            <div className="space-y-4 mb-6">
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                        Full Name
+                                    </label>
+                                    <input
+                                        type="text"
+                                        required
+                                        value={editName}
+                                        onChange={(e) =>
+                                            setEditName(e.target.value)
+                                        }
+                                        className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-200 transition-all w-full"
+                                    />
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                        Email Address
+                                    </label>
+                                    <input
+                                        type="email"
+                                        required
+                                        value={editEmail}
+                                        onChange={(e) =>
+                                            setEditEmail(e.target.value)
+                                        }
+                                        className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-200 transition-all w-full"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="flex items-center justify-end gap-2.5 border-t border-slate-100 pt-4">
+                                <button
+                                    type="button"
+                                    onClick={() => setTeacherToEdit(null)}
+                                    className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg cursor-pointer"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="px-4 py-2 text-sm font-medium bg-slate-900 text-white rounded-lg shadow-sm cursor-pointer"
+                                >
+                                    Save Changes
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 )}
 
                 {teacherToDelete && (

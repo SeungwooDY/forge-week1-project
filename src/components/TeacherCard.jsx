@@ -1,13 +1,18 @@
 import { useState } from "react";
 import ClassRow from "./ClassRow";
 
-export default function TeacherCard({ teacherData, classes = [], onDelete }) {
+export default function TeacherCard({
+    teacherData,
+    classes = [],
+    onEdit,
+    onDelete,
+}) {
     const [isExpanded, setIsExpanded] = useState(false);
 
-    // const handleEditClick = (e) => {
-    //     e.stopPropagation();
-    //     if (onEdit) onEdit(teacherData);
-    // };
+    const handleEditClick = (e) => {
+        e.stopPropagation();
+        if (onEdit) onEdit(teacherData);
+    };
 
     const handleDeleteClick = (e) => {
         e.stopPropagation();
@@ -34,7 +39,7 @@ export default function TeacherCard({ teacherData, classes = [], onDelete }) {
                     </div>
                     <div className="col-span-3 min-w-0 flex items-center justify-end gap-3">
                         <button
-                            // onClick={handleEditClick}
+                            onClick={handleEditClick}
                             className="p-1.5 text-base hover:bg-slate-100 rounded-md transition-colors duration-150 cursor-pointer select-none"
                         >
                             ✏️

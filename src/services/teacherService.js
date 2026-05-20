@@ -83,7 +83,7 @@ export const createTeacher = async (teacherName, teacherEmail) => {
     }
 };
 
-export const updateTeacher = async (id, field, newValue) => {
+export const updateTeacherById = async (id, field, newValue) => {
     if (!id || !field) {
         throw new Error("Missing_parameters");
     }
