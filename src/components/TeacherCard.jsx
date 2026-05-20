@@ -28,7 +28,7 @@ export default function TeacherCard({
                 >
                     <div className="col-span-4 min-w-0 text-sm font-medium text-slate-800">
                         <span
-                            className={`inline-block transition-transform duration-200 ${isExpanded ? "rotate-90" : ""}`}
+                            className={`p-2 inline-block transition-transform duration-200 ${isExpanded ? "rotate-90" : ""}`}
                         >
                             ▶
                         </span>
