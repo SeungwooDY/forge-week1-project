@@ -10,6 +10,7 @@ export default function Classes() {
     const [teachers, setTeachers] = useState([]);
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [deleteTarget, setDeleteTarget] = useState(null);
+    const [searchedClassName, setSearchedClassName] = useState('');
 
     const [form, setForm] = useState({
         cname: '',
@@ -25,6 +26,10 @@ export default function Classes() {
         gd_tests: '',
         gd_project: '',
     });
+
+    const filteredClasses = classes.filter((c) => 
+        c.cname?.toLowerCase().includes(searchedClassName.toLowerCase())
+    );
 
     const fetchClasses = async () => {
         try {
@@ -110,6 +115,13 @@ export default function Classes() {
                 >
                     Add Class
                 </button>
+                <input 
+                    type="text"
+                    placeholder='Search Classes'
+                    className='px-5 py-2 border-2 rounded-2xl'
+                    value={searchedClassName}
+                    onChange={(e) => setSearchedClassName(e.target.value)}
+                />
             </div>
                 <br />
             <div className="overflow-auto" style={{ height: 'calc(100vh - 64px)' }}>
@@ -126,7 +138,7 @@ export default function Classes() {
                         </tr>
                     </thead>
                     <tbody>
-                        {classes.map((c) => (
+                        {filteredClasses.map((c) => (
                             <tr key={c.id} className="border-b border-slate-100 hover:bg-slate-50">
                                 <td className="px-4 py-3 text-sm font-medium text-slate-800">{c.cname}</td>
                                 <td className="px-4 py-3 text-sm text-slate-600">{c.cgrade}</td>
