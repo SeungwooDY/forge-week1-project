@@ -1,6 +1,6 @@
 import Navbar from '../components/Navbar'
 import { useState, useEffect } from 'react'
-import { getAllClasses, addClass, deleteClass } from '../utils/classes'
+import { getAllClasses, addClass, deleteClass, updateClass } from '../utils/classes'
 import { getAllTeachers } from '../utils/teachers'
 import { deleteClassFromStudents } from '../utils/students'
 
@@ -12,6 +12,7 @@ export default function Classes() {
     const [deleteTarget, setDeleteTarget] = useState(null);
     const [searchedClassName, setSearchedClassName] = useState('');
     const [errors, setErrors] = useState({});
+    const [editTarget, setEditTarget] = useState(null);
 
     const [form, setForm] = useState({
         cname: '',
@@ -74,7 +75,12 @@ export default function Classes() {
             grade_distribution: gradeDist,
         };
 
-        await addClass(newClass);
+        if (editTarget) {
+            await updateClass(editTarget.id, newClass);
+        } else {
+            await addClass(newClass);
+        }
+
         handleCancel();
         fetchClasses();
     }
@@ -91,6 +97,7 @@ export default function Classes() {
             gd_homework: '', gd_quiz: '', gd_tests: '', gd_project: '',
         });
         setIsFormOpen(false);
+        setEditTarget(null);
     }
 
     const handleDelete = async (id) => {
@@ -114,6 +121,32 @@ export default function Classes() {
 
         setErrors(next);
         return Object.keys(next).length === 0;
+    }
+
+    const timestampToHHMM = (ts) => {
+        const d = ts.toDate();
+        const h = String(d.getHours()).padStart(2, '0');
+        const m = String(d.getMinutes()).padStart(2, '0');
+        return `${h}:${m}`;
+    }
+
+    const handleEdit = (c) => {
+        setForm({
+            cname: c.cname || '',
+            cgrade: c.cgrade?.toString() || '',
+            location: c.location || '',
+            year: c.year?.toString() || '',
+            start_time: c.start_time ? timestampToHHMM(c.start_time) : '',
+            end_time: c.end_time ? timestampToHHMM(c.end_time) : '',
+            teacher_tid: c.teacher?.tid || '',
+            teacher_tname: c.teacher?.tname || '',
+            gd_homework: c.grade_distribution?.homework?.toString() || '',
+            gd_quiz: c.grade_distribution?.quiz?.toString() || '',
+            gd_tests: c.grade_distribution?.tests?.toString() || '',
+            gd_project: c.grade_distribution?.project?.toString() || '',
+        });
+        setEditTarget(c);
+        setIsFormOpen(true);
     }
 
     useEffect(() => {
@@ -176,12 +209,20 @@ export default function Classes() {
                                             .join(', ')}
                                 </td>
                                 <td className="px-4 py-3">
-                                    <button
-                                        onClick={() => setDeleteTarget(c)}
-                                        className="text-red-600 hover:text-red-800 text-xs border-2 p-2 rounded-2xl"
-                                    >
-                                        DELETE
-                                    </button>
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => handleEdit(c)}
+                                            className="text-blue-600 hover:text-blue-800 text-xs border-2 p-2 rounded-2xl"
+                                        >
+                                            EDIT
+                                        </button>
+                                        <button
+                                            onClick={() => setDeleteTarget(c)}
+                                            className="text-red-600 hover:text-red-800 text-xs border-2 p-2 rounded-2xl"
+                                        >
+                                            DELETE
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         ))}
@@ -217,7 +258,9 @@ export default function Classes() {
                             onClick={handleCancel}>
                             <div className="bg-white rounded-2xl shadow-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-auto"
                                 onClick={(e) => e.stopPropagation()}>
-                                <h2 className="text-lg font-semibold text-slate-800 mb-4">Add Class</h2>
+                                <h2 className="text-lg font-semibold text-slate-800 mb-4">
+                                    {editTarget ? 'Edit Class' : 'Add Class'}
+                                </h2>
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="flex flex-col">
