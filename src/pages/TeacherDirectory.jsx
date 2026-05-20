@@ -7,7 +7,7 @@ import {
     getClassesByTeacherName,
     deleteTeacherById,
     updateTeacherById,
-} from "../services/teacherService";
+} from "../utils/teacherService";
 import TeacherCard from "../components/TeacherCard";
 
 function TeacherDirectory() {
