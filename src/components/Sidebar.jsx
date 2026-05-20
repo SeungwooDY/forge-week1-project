@@ -9,7 +9,7 @@ const links = [
     { to: '/calendar', label: 'Calendar' },
 ]
 
-export default function Navbar() {
+export default function Sidebar() {
     const { pathname } = useLocation()
 
     return (
