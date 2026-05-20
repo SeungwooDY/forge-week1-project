@@ -116,6 +116,16 @@ export const deleteTeacherById = async (id) => {
             throw new Error("Teacher_not_found");
         }
 
+        const classData = await getClassesByTeacherName(snapshot.data().tname);
+        if (classData && classData.length > 0) {
+            const classUpdatePromises = classData.map((classObj) => {
+                return updateDoc(doc(db, "Classes", classObj.id), {
+                    teacherName: "",
+                });
+            });
+
+            await Promise.all(classUpdatePromises);
+        }
         await deleteDoc(doc(db, "Teachers", id));
         return true;
     } catch (error) {

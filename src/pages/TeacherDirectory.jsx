@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import Sidebar from "../components/Sidebar";
+import Navbar from "../components/Navbar";
 import {
     getAllTeachers,
     createTeacher,
@@ -160,8 +160,8 @@ function TeacherDirectory() {
     };
 
     return (
-        <div className="flex flex-row min-h-screen w-full bg-slate-50">
-            <Sidebar />
+        <div className="flex flex-col min-h-screen w-full bg-slate-50">
+            <Navbar />
             <div className="flex-1 p-8">
                 <h1 className="text-2xl tracking-tight font-bold text-slate-900 mb-6">
                     Teacher Directory
