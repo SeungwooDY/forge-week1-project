@@ -4,6 +4,8 @@ import {
     getAllTeachers,
     createTeacher,
     getTeacherByName,
+    getClassesByTeacherName,
+    deleteTeacherById,
 } from "../services/teacherService";
 import TeacherCard from "../components/TeacherCard";
 
@@ -13,14 +15,26 @@ function TeacherDirectory() {
     const [newEmail, setNewEmail] = useState("");
     const [searchName, setSearchName] = useState("");
     const [searchResults, setSearchResults] = useState(null);
+    const [teacherToDelete, setTeacherToDelete] = useState(false);
+    // const [teacherToEdit, setTeacherToEdit] = useState(false)
 
     useEffect(() => {
         const fetchTeachers = async () => {
             try {
                 const teacherData = await getAllTeachers();
-                console.log("Teacher data: ", teacherData);
-                setTeachers(teacherData);
-                console.log("Fetch teachers worked");
+
+                const teachersWithClasses = await Promise.all(
+                    teacherData.map(async (teacher) => {
+                        const classData = await getClassesByTeacherName(
+                            teacher.tname,
+                        );
+                        return {
+                            ...teacher,
+                            classes: classData,
+                        };
+                    }),
+                );
+                setTeachers(teachersWithClasses);
             } catch (error) {
                 console.error("Error fetching teacher data", error);
             }
@@ -47,9 +61,11 @@ function TeacherDirectory() {
     const handleSearch = async (e) => {
         if (e) e.preventDefault();
         try {
-            const teacherData = await getTeacherByName(searchName);
+            const filteredTeachers = teachers.filter((teacher) => {
+                return teacher.tname.includes(searchName);
+            });
 
-            setSearchResults(teacherData);
+            setSearchResults(filteredTeachers);
             setSearchName("");
         } catch (error) {
             console.error("Failed to get teacher: ", error);
@@ -58,6 +74,37 @@ function TeacherDirectory() {
 
     const handleClearSearch = () => {
         setSearchResults(null);
+    };
+
+    // const handleOpenEdit = (teacher) => {
+    //     setTeacherToEdit(teacher);
+    // };
+
+    // const handleEdit = async (id) => {
+
+    // }
+
+    const handleOpenDelete = (teacher) => {
+        setTeacherToDelete(teacher);
+    };
+
+    const handleDelete = async () => {
+        try {
+            await deleteTeacherById(teacherToDelete.id);
+
+            setTeachers((prev) =>
+                prev.filter((t) => t.id !== teacherToDelete.id),
+            );
+            if (searchResults !== null) {
+                setSearchResults((prev) =>
+                    prev.filter((t) => t.id !== teacherToDelete.id),
+                );
+            }
+
+            setTeacherToDelete(null);
+        } catch (error) {
+            console.error("Failed to delete teacher: ", error);
+        }
     };
 
     return (
@@ -98,9 +145,10 @@ function TeacherDirectory() {
                     </div>
                 )}
 
-                <div className="grid grid-cols-2 gap-4 px-6 py-2 text-xs font-semibold uppercase tracking-wider text-slate-400 border-b border-slate-200 mb-2">
-                    <div>Name</div>
-                    <div>Email</div>
+                <div className="grid grid-cols-12 gap-4 px-6 py-2 text-xs font-semibold uppercase tracking-wider text-slate-400 border-b border-slate-200 mb-2">
+                    <div className="col-span-4">Name</div>
+                    <div className="col-span-5">Email</div>
+                    <div className="col-span-3 text-right">Actions</div>
                 </div>
                 {searchResults !== null && searchResults.length === 0 ? (
                     <div className="p-12 text-center bg-white border border-slate-200 rounded-xl shadow-sm mt-2">
@@ -119,10 +167,60 @@ function TeacherDirectory() {
                             : teachers
                         ).map((teacher) => (
                             <li key={teacher.id} className="list-none">
-                                <TeacherCard teacherData={teacher} />
+                                <TeacherCard
+                                    teacherData={teacher}
+                                    classes={teacher.classes || []}
+                                    onDelete={handleOpenDelete}
+                                    // onEdit={handleOpenEdit}
+                                />
                             </li>
                         ))}
                     </ul>
+                )}
+
+                {teacherToDelete && (
+                    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center z-50">
+                        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-xl max-w-md w-full mx-4">
+                            <div className="flex items-center gap-3 mb-4">
+                                <span className="text-2xl bg-red-50 p-2 rounded-lg">
+                                    ⚠️
+                                </span>
+                                <div>
+                                    <h3 className="text-base font-semibold text-slate-950">
+                                        Permanently delete profile?
+                                    </h3>
+                                    <p className="text-xs text-slate-400 mt-0.5 font-mono">
+                                        ID: {teacherToDelete.id}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <p className="text-sm text-slate-600 mb-6 leading-relaxed">
+                                Are you sure you want to delete{" "}
+                                <strong className="text-slate-900 font-medium">
+                                    {teacherToDelete.tname}
+                                </strong>
+                                ? This will remove their record from the
+                                directory permanently. This action cannot be
+                                reversed.
+                            </p>
+
+                            <div className="flex items-center justify-end gap-2.5">
+                                <button
+                                    onClick={() => setTeacherToDelete(null)}
+                                    className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleDelete}
+                                    className="px-4 py-2 text-sm font-medium bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-sm transition-colors cursor-pointer"
+                                >
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 )}
 
                 <div className="mt-8 p-6 bg-white border border-slate-200 rounded-xl shadow-sm max-w-3xl">

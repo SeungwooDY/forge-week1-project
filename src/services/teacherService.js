@@ -106,7 +106,7 @@ export const updateTeacher = async (id, field, newValue) => {
     }
 };
 
-export const deleteTeacher = async (id) => {
+export const deleteTeacherById = async (id) => {
     if (!id) {
         throw new Error("Missing_id");
     }
@@ -121,5 +121,28 @@ export const deleteTeacher = async (id) => {
     } catch (error) {
         console.error("Failed to delete teacher: ", error);
         throw error;
+    }
+};
+
+export const getClassesByTeacherName = async (name) => {
+    if (!name) {
+        throw new Error("Missing_name");
+    }
+
+    try {
+        const nameQuery = query(
+            collection(db, "Classes"),
+            where("teacher.tname", "==", name),
+        );
+        const querySnapshot = await getDocs(nameQuery);
+        if (querySnapshot.empty) return [];
+
+        const data = querySnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+        }));
+        return data;
+    } catch (error) {
+        console.error("Failed to fetch teachers: ", error);
     }
 };
