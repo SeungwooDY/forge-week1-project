@@ -1,9 +1,9 @@
-import Sidebar from '../components/Sidebar'
+import Navbar from '../components/Navbar'
 
 function Students() {
     return (
         <div>
-            <Sidebar />
+            <Navbar />
         </div>
     )
 }

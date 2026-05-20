@@ -1,9 +1,9 @@
-import Sidebar from '../components/Sidebar'
+import Navbar from '../components/Navbar'
 
 function ClassPage() {
     return (
         <div>
-            <Sidebar />
+            <Navbar />
         </div>
     )
 }
