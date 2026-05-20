@@ -2,6 +2,7 @@ import Navbar from '../components/Navbar'
 import { useState, useEffect } from 'react'
 import { getAllClasses, addClass, deleteClass } from '../utils/classes'
 import { getAllTeachers } from '../utils/teachers'
+import { deleteClassFromStudents } from '../utils/students'
 
 
 export default function Classes() {
@@ -85,6 +86,7 @@ export default function Classes() {
     }
 
     const handleDelete = async (id) => {
+        await deleteClassFromStudents(id);
         await deleteClass(id);
         setDeleteTarget(null);
         fetchClasses();
