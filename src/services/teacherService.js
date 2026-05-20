@@ -43,6 +43,30 @@ export const getTeacherById = async (id) => {
     }
 };
 
+export const getTeacherByName = async (name) => {
+    if (!name) {
+        throw new Error("Missing_name");
+    }
+
+    try {
+        const nameQuery = query(
+            collection(db, "Teachers"),
+            where("tname", "==", name),
+        );
+        const querySnapshot = await getDocs(nameQuery);
+        if (querySnapshot.empty) return [];
+
+        const data = querySnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+        }));
+        return data;
+    } catch (error) {
+        console.error("Failed to fetch teacher: ", error);
+        return [];
+    }
+};
+
 export const createTeacher = async (teacherName, teacherEmail) => {
     if (!teacherName || !teacherEmail) {
         throw new Error("Missing_fields");

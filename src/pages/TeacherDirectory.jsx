@@ -1,12 +1,18 @@
 import { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
-import { getAllTeachers, createTeacher } from "../services/teacherService";
+import {
+    getAllTeachers,
+    createTeacher,
+    getTeacherByName,
+} from "../services/teacherService";
 import TeacherCard from "../components/TeacherCard";
 
 function TeacherDirectory() {
     const [teachers, setTeachers] = useState([]);
     const [newName, setNewName] = useState("");
     const [newEmail, setNewEmail] = useState("");
+    const [searchName, setSearchName] = useState("");
+    const [searchResults, setSearchResults] = useState(null);
 
     useEffect(() => {
         const fetchTeachers = async () => {
@@ -37,6 +43,23 @@ function TeacherDirectory() {
             console.error("Failed creating new teacher: ", error);
         }
     };
+
+    const handleSearch = async (e) => {
+        if (e) e.preventDefault();
+        try {
+            const teacherData = await getTeacherByName(searchName);
+
+            setSearchResults(teacherData);
+            setSearchName("");
+        } catch (error) {
+            console.error("Failed to get teacher: ", error);
+        }
+    };
+
+    const handleClearSearch = () => {
+        setSearchResults(null);
+    };
+
     return (
         <div className="flex flex-row min-h-screen w-full bg-slate-50">
             <Sidebar />
@@ -44,17 +67,63 @@ function TeacherDirectory() {
                 <h1 className="text-2xl tracking-tight font-bold text-slate-900 mb-6">
                     Teacher Directory
                 </h1>
+                <form
+                    onSubmit={handleSearch}
+                    className="flex gap-2 max-w-md mb-8"
+                >
+                    <input
+                        type="text"
+                        value={searchName}
+                        onChange={(e) => setSearchName(e.target.value)}
+                        placeholder="Search for a teacher"
+                        className="flex-1 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+                    />
+                    <button
+                        type="submit"
+                        className="px-4 py-1.5 bg-slate-900 hover:bg-slate-800 text-white text-sm font-medium rounded-lg shadow-sm transition-colors duration-150 cursor-pointer"
+                    >
+                        Search
+                    </button>
+                </form>
+
+                {searchResults !== null && (
+                    <div className="flex items-center gap-2 mb-4 text-sm text-slate-600 bg-slate-100 px-4 py-2 rounded-lg w-fit">
+                        <span>Showing filtered results</span>
+                        <button
+                            onClick={handleClearSearch}
+                            className="text-xs font-semibold text-red-600 hover:text-red-700 underline ml-2 cursor-pointer"
+                        >
+                            Clear Search & Show All
+                        </button>
+                    </div>
+                )}
+
                 <div className="grid grid-cols-2 gap-4 px-6 py-2 text-xs font-semibold uppercase tracking-wider text-slate-400 border-b border-slate-200 mb-2">
                     <div>Name</div>
                     <div>Email</div>
                 </div>
-                <ul className="flex flex-col gap-2">
-                    {teachers.map((teacher) => (
-                        <li key={teacher.id} className="list-none">
-                            <TeacherCard teacherData={teacher} />
-                        </li>
-                    ))}
-                </ul>
+                {searchResults !== null && searchResults.length === 0 ? (
+                    <div className="p-12 text-center bg-white border border-slate-200 rounded-xl shadow-sm mt-2">
+                        <span className="text-3xl block mb-2">🔍</span>
+                        <h3 className="text-sm font-medium text-slate-800 mb-1">
+                            No teachers found
+                        </h3>
+                        <p className="text-xs text-slate-500">
+                            We couldn't find anyone matching that exact name.
+                        </p>
+                    </div>
+                ) : (
+                    <ul className="flex flex-col gap-2">
+                        {(searchResults !== null
+                            ? searchResults
+                            : teachers
+                        ).map((teacher) => (
+                            <li key={teacher.id} className="list-none">
+                                <TeacherCard teacherData={teacher} />
+                            </li>
+                        ))}
+                    </ul>
+                )}
 
                 <div className="mt-8 p-6 bg-white border border-slate-200 rounded-xl shadow-sm max-w-3xl">
                     <h3 className="text-lg font-semibold tracking-tight text-slate-900 mb-4 flex items-center gap-2">
