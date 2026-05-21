@@ -125,6 +125,38 @@ export default function Classes() {
     const isValid = () => {
         const next = {};
 
+        if (!form.cname.trim()) {
+            next.cname = 'Class name is required';
+        }
+
+        if (!form.cgrade) {
+            next.cgrade = 'Grade is required';
+        }
+
+        if (!form.location.trim()) {
+            next.location = 'Location is required';
+        }
+
+        if (!form.year) {
+            next.year = 'Year is required';
+        }
+
+        if (!form.start_time) {
+            next.start_time = 'Start time is required';
+        }
+
+        if (!form.end_time) {
+            next.end_time = 'End time is required';
+        }
+
+        if (!form.teacher_tid) {
+            next.teacher = 'Teacher is required';
+        }
+
+        if (form.gd_homework === '' || form.gd_project === '' || form.gd_quiz === '' || form.gd_tests === '') {
+            next.grade_distribution = 'All grade categories are required';
+        }
+
         if (form.cgrade && !isInt(form.cgrade)) next.cgrade = 'Must be a whole number';
         // make sure grade is reasonable (between 1 and 5)
         if (form.cgrade && (form.cgrade < 1 || form.cgrade > 5)) next.cgrade = "Grade must be between 1 and 5";
