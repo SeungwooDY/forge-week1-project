@@ -65,6 +65,12 @@ export default function Classes() {
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
+
+        // clear existing error for this field
+        setErrors((prev) => ({
+            ...prev,
+            [e.target.name]: ''
+        }));
     }
 
     const handleSubmit = async () => {
@@ -153,6 +159,10 @@ export default function Classes() {
             next.teacher = 'Teacher is required';
         }
 
+        if (!form.student_sid) {
+            next.student = 'Student is required';
+        }
+
         if (form.gd_homework === '' || form.gd_project === '' || form.gd_quiz === '' || form.gd_tests === '') {
             next.grade_distribution = 'All grade categories are required';
         }
@@ -224,6 +234,7 @@ export default function Classes() {
 
     const input = "border border-slate-300 rounded-2xl px-2 py-1 text-sm";
     const label = "text-xs font-medium text-slate-600 mb-1";
+    const inputError = "border-red-500 focus:ring-2 focus:ring-red-300 bg-red-50";
 
     return (
         <>
@@ -333,32 +344,62 @@ export default function Classes() {
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="flex flex-col">
                                         <label className={label}>Class name</label>
-                                        <input className={input} name="cname" value={form.cname} onChange={handleChange} />
+                                        <input className={`${input} ${errors.cname ? inputError : "border-slate-300"}`} name="cname" value={form.cname} onChange={handleChange}/>
+                                        {errors.cname && (
+                                            <p className="text-red-500 text-xs mt-1">
+                                                {errors.cname}
+                                            </p>
+                                        )}
                                     </div>
                                     <div className="flex flex-col">
                                         <label className={label}>Grade</label>
-                                        <input className={input} type="number" step="1" name="cgrade" value={form.cgrade} onChange={handleChange} />
+                                        <input className={`${input} ${errors.cgrade ? inputError : "border-slate-300"}`} type="number" step="1" name="cgrade" value={form.cgrade} onChange={handleChange} />
+                                        {errors.cgrade && (
+                                            <p className="text-red-500 text-xs mt-1">
+                                                {errors.cgrade}
+                                            </p>
+                                        )}
                                     </div>
                                     <div className="flex flex-col">
                                         <label className={label}>Location</label>
-                                        <input className={input} name="location" value={form.location} onChange={handleChange} />
+                                        <input className={`${input} ${errors.location ? inputError : "border-slate-300"}`} name="location" value={form.location} onChange={handleChange} />
+                                        {errors.location && (
+                                            <p className="text-red-500 text-xs mt-1">
+                                                {errors.location}
+                                            </p>
+                                        )}
                                     </div>
                                     <div className="flex flex-col">
                                         <label className={label}>Year</label>
-                                        <input className={input} type="number" step="1" name="year" value={form.year} onChange={handleChange} />
+                                        <input className={`${input} ${errors.year ? inputError : "border-slate-300"}`} type="number" step="1" name="year" value={form.year} onChange={handleChange} />
+                                        {errors.year && (
+                                            <p className="text-red-500 text-xs mt-1">
+                                                {errors.year}
+                                            </p>
+                                        )}
                                     </div>
                                     <div className="flex flex-col">
                                         <label className={label}>Start time</label>
-                                        <input className={input} type="time" step="60" name="start_time" value={form.start_time} onChange={handleChange} />
+                                        <input className={`${input} ${errors.start_time ? inputError : "border-slate-300"}`} type="time" step="60" name="start_time" value={form.start_time} onChange={handleChange} />
+                                        {errors.start_time && (
+                                            <p className="text-red-500 text-xs mt-1">
+                                                {errors.start_time}
+                                            </p>
+                                        )}
                                     </div>
                                     <div className="flex flex-col">
                                         <label className={label}>End time</label>
-                                        <input className={input} type="time" step="60" name="end_time" value={form.end_time} onChange={handleChange} />
+                                        <input className={`${input} ${errors.end_time ? inputError : "border-slate-300"}`} type="time" step="60" name="end_time" value={form.end_time} onChange={handleChange} />
+                                        {errors.end_time && (
+                                            <p className="text-red-500 text-xs mt-1">
+                                                {errors.end_time}
+                                            </p>
+                                        )}
                                     </div>
                                     <div className="flex flex-col">
                                         <label className={label}>Teacher</label>
                                         <select
-                                            className={input}
+                                            className={`${input} ${errors.teacher ? inputError : "border-slate-300"}`}
                                             name="teacher_tid"
                                             value={form.teacher_tid}
                                             onChange={(e) => {
@@ -377,11 +418,16 @@ export default function Classes() {
                                                 </option>
                                             ))}
                                         </select>
+                                        {errors.teacher && (
+                                            <p className="text-red-500 text-xs mt-1">
+                                                {errors.teacher}
+                                            </p>
+                                        )}
                                     </div>
                                     <div className="flex flex-col">
                                         <label className={label}>Student</label>
                                         <select
-                                            className={input}
+                                            className={`${input} ${errors.student ? inputError : "border-slate-300"}`}
                                             name="student_sid"
                                             value={form.student_sid}
                                             onChange={(e) => {
@@ -400,6 +446,11 @@ export default function Classes() {
                                                 </option>
                                             ))}
                                         </select>
+                                        {errors.student && (
+                                            <p className="text-red-500 text-xs mt-1">
+                                                {errors.student}
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
 
@@ -422,6 +473,11 @@ export default function Classes() {
                                         <input className={input} type="number" step="1" name="gd_project" value={form.gd_project} onChange={handleChange} />
                                     </div>
                                 </div>
+                                {errors.grade_distribution && (
+                                    <p className="text-red-500 text-xs mt-1">
+                                        {errors.grade_distribution}
+                                    </p>
+                                )}
 
                                 <div className="flex gap-3 mt-6 justify-end">
                                     <button onClick={handleCancel} className="px-4 py-2 border border-slate-300 text-slate-700 text-sm rounded-2xl hover:bg-slate-50">
