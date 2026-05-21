@@ -134,6 +134,10 @@ export default function Classes() {
         if (form.year && (form.year < 1900 || form.year > currentYear)) {
             next.year = `Year must be between 1900 and ${currentYear}`;
         }
+        // make sure start time is before end time
+        if (form.start_time && form.end_time && form.start_time >= form.end_time) {
+            next.end_time = 'End time must be after start time';
+        }
         if (form.gd_homework && !isInt(form.gd_homework)) next.gd_homework = 'Whole number only';
         if (form.gd_quiz && !isInt(form.gd_quiz)) next.gd_quiz = 'Whole number only';
         if (form.gd_tests && !isInt(form.gd_tests)) next.gd_tests = 'Whole number only';
