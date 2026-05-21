@@ -2,12 +2,13 @@ import Navbar from '../components/Navbar'
 import { useState, useEffect } from 'react'
 import { getAllClasses, addClass, deleteClass, updateClass } from '../utils/classes'
 import { getAllTeachers } from '../utils/teachers'
-import { deleteClassFromStudents } from '../utils/students'
+import { getAllStudents, deleteClassFromStudents } from '../utils/students'
 
 
 export default function Classes() {
     const [classes, setClasses] = useState([]);
     const [teachers, setTeachers] = useState([]);
+    const [students, setStudents] = useState([]);
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [deleteTarget, setDeleteTarget] = useState(null);
     const [searchedClassName, setSearchedClassName] = useState('');
@@ -23,6 +24,8 @@ export default function Classes() {
         end_time: '',
         teacher_tid: '',
         teacher_tname: '',
+        student_sid: '',
+        student_sname: '',
         gd_homework: '',
         gd_quiz: '',
         gd_tests: '',
@@ -39,6 +42,15 @@ export default function Classes() {
             setClasses(data);
         } catch (error) {
             console.log("Error fetching classes", error);
+        }
+    }
+    
+    const fetchStudents = async () => {
+        try {
+            const data = await getAllStudents();
+            setStudents(data);
+        } catch (error) {
+            console.log("Error fetching students", error);
         }
     }
 
@@ -78,7 +90,7 @@ export default function Classes() {
         if (editTarget) {
             await updateClass(editTarget.id, newClass);
         } else {
-            await addClass(newClass);
+            await addClass(newClass, form.student_sid, form.student_sname);
         }
 
         handleCancel();
@@ -94,6 +106,7 @@ export default function Classes() {
             cname: '', cgrade: '', location: '', year: '',
             start_time: '', end_time: '',
             teacher_tid: '', teacher_tname: '',
+            student_sid: '', student_sname: '',
             gd_homework: '', gd_quiz: '', gd_tests: '', gd_project: '',
         });
         setIsFormOpen(false);
@@ -118,8 +131,18 @@ export default function Classes() {
         if (form.gd_quiz && !isInt(form.gd_quiz)) next.gd_quiz = 'Whole number only';
         if (form.gd_tests && !isInt(form.gd_tests)) next.gd_tests = 'Whole number only';
         if (form.gd_project && !isInt(form.gd_project)) next.gd_project = 'Whole number only';
-
+        // ensure all grade distribution fields are between 0 and 100 and they sum to 100
+        
+        const gdValues = [form.gd_homework, form.gd_quiz, form.gd_tests, form.gd_project].filter(v => v !== '');
+        const gdSum = gdValues.reduce((sum, val) => sum + Number(val), 0);
+        if (gdValues.some(v => v < 0 || v > 100)) {
+            next.grade_distribution = 'Each category must be between 0 and 100';
+        } else if (gdValues.length > 0 && gdSum !== 100) {
+            next.grade_distribution = 'Percentages must sum to 100';
+        }
         setErrors(next);
+        // doesn't show the error messages anywhere but it prevents submission if there are errors, which is the main point
+        console.log(next);
         return Object.keys(next).length === 0;
     }
 
@@ -152,6 +175,7 @@ export default function Classes() {
     useEffect(() => {
         fetchClasses();
         fetchTeachers();
+        fetchStudents();
     }, [])
 
     const input = "border border-slate-300 rounded-2xl px-2 py-1 text-sm";
@@ -306,6 +330,29 @@ export default function Classes() {
                                             {teachers.map((t) => (
                                                 <option key={t.id} value={t.email}>
                                                     {t.tname} ({t.email})
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <label className={label}>Student</label>
+                                        <select
+                                            className={input}
+                                            name="student_sid"
+                                            value={form.student_sid}
+                                            onChange={(e) => {
+                                                const selected = students.find(s => s.sid === e.target.value);
+                                                setForm({
+                                                    ...form,
+                                                    student_sid: e.target.value,
+                                                    student_sname: selected?.sname || '',
+                                                });
+                                            }}
+                                        >
+                                            <option value="">Select a student...</option>
+                                            {students.map((s) => (
+                                                <option key={s.id} value={s.sid}>
+                                                    {s.sname}
                                                 </option>
                                             ))}
                                         </select>
