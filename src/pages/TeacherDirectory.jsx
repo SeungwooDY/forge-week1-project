@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import {
     getAllTeachers,
@@ -7,7 +8,7 @@ import {
     getClassesByTeacherName,
     deleteTeacherById,
     updateTeacherById,
-} from "../utils/teacherService";
+} from "../utils/teachers";
 import TeacherCard from "../components/TeacherCard";
 
 function TeacherDirectory() {
@@ -20,6 +21,12 @@ function TeacherDirectory() {
     const [teacherToEdit, setTeacherToEdit] = useState(false);
     const [editName, setEditName] = useState("");
     const [editEmail, setEditEmail] = useState("");
+
+    const navigate = useNavigate();
+
+    const handleClassNavigation = (id) => {
+        navigate(`/classes/${id}`);
+    };
 
     useEffect(() => {
         const fetchTeachers = async () => {
@@ -224,6 +231,7 @@ function TeacherDirectory() {
                                     classes={teacher.classes || []}
                                     onDelete={handleOpenDelete}
                                     onEdit={handleOpenEdit}
+                                    onClassClick={handleClassNavigation}
                                 />
                             </li>
                         ))}

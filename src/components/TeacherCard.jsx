@@ -6,6 +6,7 @@ export default function TeacherCard({
     classes = [],
     onEdit,
     onDelete,
+    onClassClick,
 }) {
     const [isExpanded, setIsExpanded] = useState(false);
 
@@ -63,6 +64,7 @@ export default function TeacherCard({
                                 <ClassRow
                                     key={classObj.id}
                                     classData={classObj}
+                                    onClick={() => onClassClick(classObj.id)}
                                 />
                             ))
                         )}
