@@ -111,10 +111,12 @@ export default function Classes() {
     }
 
     const handleAddClass = () => {
+        setErrors({});
         setIsFormOpen(true);
     }
 
     const handleCancel = () => {
+        setErrors({});
         setForm({
             cname: '', cgrade: '', location: '', year: '',
             start_time: '', end_time: '',
@@ -215,6 +217,7 @@ export default function Classes() {
     }
 
     const handleEdit = (c) => {
+        setErrors({});
         setForm({
             cname: c.cname || '',
             cgrade: c.cgrade?.toString() || '',
@@ -239,269 +242,308 @@ export default function Classes() {
         fetchStudents();
     }, [])
 
-    const input = "border border-slate-300 rounded-2xl px-2 py-1 text-sm";
-    const label = "text-xs font-medium text-slate-600 mb-1";
-    const inputError = "border-red-500 focus:ring-2 focus:ring-red-300 bg-red-50";
+    const input = "w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-200 transition-all";
+    const label = "text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1.5";
+    const inputError = "border-red-500 focus:ring-red-200 bg-red-50";
 
     return (
-        <>
+        <div className="flex flex-col min-h-screen w-full bg-slate-50">
             <Navbar />
-            <div className="flex justify-center p-4">
-                <button
-                    onClick={handleAddClass}
-                    className="px-4 py-2 border-2 rounded-2xl"
-                >
-                    Add Class
-                </button>
-                <input 
-                    type="text"
-                    placeholder='Search Classes By Name'
-                    className='px-5 py-2 border-2 rounded-2xl'
-                    value={searchedClassName}
-                    onChange={(e) => setSearchedClassName(e.target.value)}
-                />
-            </div>
-                <br />
-            <div className="overflow-auto" style={{ height: 'calc(100vh - 64px)' }}>
-                <table className="min-w-full">
-                    <thead className="sticky top-0 bg-white border-b border-slate-200">
-                        <tr>
-                            <th className="text-left px-4 py-3 text-sm font-semibold text-slate-700">Class</th>
-                            <th className="text-left px-4 py-3 text-sm font-semibold text-slate-700">Grade</th>
-                            <th className="text-left px-4 py-3 text-sm font-semibold text-slate-700">Teacher</th>
-                            <th className="text-left px-4 py-3 text-sm font-semibold text-slate-700">Location</th>
-                            <th className="text-left px-4 py-3 text-sm font-semibold text-slate-700">Time</th>
-                            <th className="text-left px-4 py-3 text-sm font-semibold text-slate-700">Year</th>
-                            <th className="text-left px-4 py-3 text-sm font-semibold text-slate-700">Grading</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filteredClasses.map((c) => (
-                            <tr key={c.id} onClick={() => handleClassNavigation(c.id)} className="border-b border-slate-100 hover:bg-slate-50 cursor-pointer">
-                                <td className="px-4 py-3 text-sm font-medium text-slate-800">{c.cname}</td>
-                                <td className="px-4 py-3 text-sm text-slate-600">{c.cgrade}</td>
-                                <td className="px-4 py-3 text-sm text-slate-600">{c.teacher?.tname}</td>
-                                <td className="px-4 py-3 text-sm text-slate-600">{c.location}</td>
-                                <td className="px-4 py-3 text-sm text-slate-600">
-                                    {c.start_time?.toDate().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
-                                    {' – '}
-                                    {c.end_time?.toDate().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
-                                </td>
-                                <td className="px-4 py-3 text-sm text-slate-600">{c.year}</td>
-                                <td className="px-4 py-3 text-sm text-slate-600">
-                                    {c.grade_distribution &&
-                                        Object.entries(c.grade_distribution)
-                                            .map(([category, percent]) => `${percent}% ${category}`)
-                                            .join(', ')}
-                                </td>
-                                <td className="px-4 py-3">
-                                    <div className="flex gap-2">
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleEdit(c);}}
-                                            className="text-blue-600 hover:text-blue-800 text-xs border-2 p-2 rounded-2xl"
-                                        >
-                                            EDIT
-                                        </button>
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setDeleteTarget(c);}}
-                                            className="text-red-600 hover:text-red-800 text-xs border-2 p-2 rounded-2xl"
-                                        >
-                                            DELETE
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-
-                {deleteTarget && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-                        onClick={() => setDeleteTarget(null)}>
-                        <div className="bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full"
-                            onClick={(e) => e.stopPropagation()}>
-                            <h2 className="text-lg font-semibold text-slate-800 mb-2">Delete class?</h2>
-                            <p className="text-sm text-slate-600 mb-4">
-                                Are you sure you want to delete <strong>{deleteTarget.cname}</strong>?
+            <div className="flex-1 p-8">
+                <h1 className="text-2xl tracking-tight font-bold text-slate-900 mb-6">
+                    Class Directory
+                </h1>
+                <div className="flex flex-col sm:flex-row gap-3 mb-8">
+                    <button
+                        onClick={handleAddClass}
+                        className="px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-medium rounded-lg shadow-sm transition-colors duration-150 cursor-pointer"
+                    >
+                        Add Class
+                    </button>
+                    <input
+                        type="text"
+                        placeholder="Search classes by name..."
+                        className="flex-1 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+                        value={searchedClassName}
+                        onChange={(e) => setSearchedClassName(e.target.value)}
+                    />
+                </div>
+                <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+                    {filteredClasses.length === 0 ? (
+                        <div className="p-12 text-center">
+                            <span className="text-3xl block mb-2">🔍</span>
+                            <h3 className="text-sm font-medium text-slate-800 mb-1">
+                                No classes found
+                            </h3>
+                            <p className="text-xs text-slate-500">
+                                We couldn't find any classes with that name
                             </p>
-                            <div className="flex gap-3 justify-end">
-                                <button onClick={() => setDeleteTarget(null)}
-                                        className="px-4 py-2 border border-slate-300 text-slate-700 text-sm rounded-2xl hover:bg-slate-50">
-                                    Cancel
-                                </button>
-                                <button onClick={() => handleDelete(deleteTarget.id)}
-                                        className="px-4 py-2 bg-red-600 text-white text-sm rounded-2xl hover:bg-red-700">
-                                    Delete
-                                </button>
-                            </div>
                         </div>
-                    </div>
-                )}
+                    ) : (
+                        <table className="w-full">
+                            <thead className="bg-slate-50 border-b border-slate-200">
+                                <tr>
+                                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Class</th>
+                                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Grade</th>
+                                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Teacher</th>
+                                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Location</th>
+                                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Time</th>
+                                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Year</th>
+                                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Grading</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {filteredClasses.map((c) => (
+                                    <tr key={c.id} onClick={() => handleClassNavigation(c.id)} className="border-b border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer-b border-slate-100 hover:bg-slate-50 cursor-pointer">
+                                        <td className="px-6 py-4 text-sm font-medium text-slate-900">{c.cname}</td>
+                                        <td className="px-6 py-4 text-sm text-slate-600">{c.cgrade}</td>
+                                        <td className="px-6 py-4 text-sm text-slate-600">{c.teacher?.tname}</td>
+                                        <td className="px-6 py-4 text-sm text-slate-600">{c.location}</td>
+                                        <td className="px-6 py-4 text-sm text-slate-600">
+                                            {c.start_time?.toDate().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
+                                            {' – '}
+                                            {c.end_time?.toDate().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
+                                        </td>
+                                        <td className="px-6 py-4 text-sm text-slate-600">{c.year}</td>
+                                        <td className="px-6 py-4 text-sm text-slate-600">
+                                            {c.grade_distribution &&
+                                                Object.entries(c.grade_distribution)
+                                                    .map(([category, percent]) => `${percent}% ${category}`)
+                                                    .join(', ')}
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex gap-2">
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleEdit(c);}}
+                                                    className="px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100 border border-slate-200 rounded-lg transition-colors cursor-pointer"
+                                                >
+                                                    EDIT
+                                                </button>
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setDeleteTarget(c);}}
+                                                    className="px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 border border-red-200 rounded-lg transition-colors cursor-pointer"
+                                                >
+                                                    DELETE
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    )};
 
-                    {/* Add class form */}
-                    {isFormOpen && (
-                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-                            onClick={handleCancel}>
-                            <div className="bg-white rounded-2xl shadow-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-auto"
+                    {deleteTarget && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs"
+                            onClick={() => setDeleteTarget(null)}>
+                            <div className="bg-white rounded-xl border border-slate-200 shadow-xl p-6 max-w-md w-full mx-4"
                                 onClick={(e) => e.stopPropagation()}>
-                                <h2 className="text-lg font-semibold text-slate-800 mb-4">
-                                    {editTarget ? 'Edit Class' : 'Add Class'}
-                                </h2>
+                                <div className="flex items-center gap-3 mb-4">
+                                    <span className="text-2xl bg-red-50 p-2 rounded-lg">
+                                        ⚠️
+                                    </span>
 
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="flex flex-col">
-                                        <label className={label}>Class name</label>
-                                        <input className={`${input} ${errors.cname ? inputError : "border-slate-300"}`} name="cname" value={form.cname} onChange={handleChange}/>
-                                        {errors.cname && (
-                                            <p className="text-red-500 text-xs mt-1">
-                                                {errors.cname}
-                                            </p>
-                                        )}
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <label className={label}>Grade</label>
-                                        <input className={`${input} ${errors.cgrade ? inputError : "border-slate-300"}`} type="number" step="1" name="cgrade" value={form.cgrade} onChange={handleChange} />
-                                        {errors.cgrade && (
-                                            <p className="text-red-500 text-xs mt-1">
-                                                {errors.cgrade}
-                                            </p>
-                                        )}
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <label className={label}>Location</label>
-                                        <input className={`${input} ${errors.location ? inputError : "border-slate-300"}`} name="location" value={form.location} onChange={handleChange} />
-                                        {errors.location && (
-                                            <p className="text-red-500 text-xs mt-1">
-                                                {errors.location}
-                                            </p>
-                                        )}
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <label className={label}>Year</label>
-                                        <input className={`${input} ${errors.year ? inputError : "border-slate-300"}`} type="number" step="1" name="year" value={form.year} onChange={handleChange} />
-                                        {errors.year && (
-                                            <p className="text-red-500 text-xs mt-1">
-                                                {errors.year}
-                                            </p>
-                                        )}
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <label className={label}>Start time</label>
-                                        <input className={`${input} ${errors.start_time ? inputError : "border-slate-300"}`} type="time" step="60" name="start_time" value={form.start_time} onChange={handleChange} />
-                                        {errors.start_time && (
-                                            <p className="text-red-500 text-xs mt-1">
-                                                {errors.start_time}
-                                            </p>
-                                        )}
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <label className={label}>End time</label>
-                                        <input className={`${input} ${errors.end_time ? inputError : "border-slate-300"}`} type="time" step="60" name="end_time" value={form.end_time} onChange={handleChange} />
-                                        {errors.end_time && (
-                                            <p className="text-red-500 text-xs mt-1">
-                                                {errors.end_time}
-                                            </p>
-                                        )}
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <label className={label}>Teacher</label>
-                                        <select
-                                            className={`${input} ${errors.teacher ? inputError : "border-slate-300"}`}
-                                            name="teacher_tid"
-                                            value={form.teacher_tid}
-                                            onChange={(e) => {
-                                                const selected = teachers.find(t => t.id === e.target.value);
-                                                setForm({
-                                                    ...form,
-                                                    teacher_tid: selected?.id || '',
-                                                    teacher_tname: selected?.tname || '',
-                                                });
-                                            }}
-                                        >
-                                            <option value="">Select a teacher...</option>
-                                            {teachers.map((t) => (
-                                                <option key={t.id} value={t.id}>
-                                                    {t.tname} ({t.email})
-                                                </option>
-                                            ))}
-                                        </select>
-                                        {errors.teacher && (
-                                            <p className="text-red-500 text-xs mt-1">
-                                                {errors.teacher}
-                                            </p>
-                                        )}
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <label className={label}>Student</label>
-                                        <select
-                                            className={`${input} ${errors.student ? inputError : "border-slate-300"}`}
-                                            name="student_sid"
-                                            value={form.student_sid}
-                                            onChange={(e) => {
-                                                const selected = students.find(s => s.id === e.target.value);
-                                                setForm({
-                                                    ...form,
-                                                    student_sid: selected?.id || '',
-                                                    student_sname: selected?.sname || '',
-                                                });
-                                            }}
-                                        >
-                                            <option value="">Select a student...</option>
-                                            {students.map((s) => (
-                                                <option key={s.id} value={s.id}>
-                                                    {s.sname}
-                                                </option>
-                                            ))}
-                                        </select>
-                                        {errors.student && (
-                                            <p className="text-red-500 text-xs mt-1">
-                                                {errors.student}
-                                            </p>
-                                        )}
+                                    <div>
+                                        <h3 className="text-base font-semibold text-slate-950">
+                                            Delete Class?
+                                        </h3>
+
+                                        <p className="text-xs text-slate-400 mt-0.5">
+                                            ID: {deleteTarget.id}
+                                        </p>
                                     </div>
                                 </div>
-
-                                <h3 className="text-sm font-semibold text-slate-700 mt-6 mb-2">Grade distribution (%)</h3>
-                                <div className="grid grid-cols-4 gap-4">
-                                    <div className="flex flex-col">
-                                        <label className={label}>Homework</label>
-                                        <input className={input} type="number" step="1" name="gd_homework" value={form.gd_homework} onChange={handleChange} />
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <label className={label}>Quiz</label>
-                                        <input className={input} type="number" step="1" name="gd_quiz" value={form.gd_quiz} onChange={handleChange} />
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <label className={label}>Tests</label>
-                                        <input className={input} type="number" step="1" name="gd_tests" value={form.gd_tests} onChange={handleChange} />
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <label className={label}>Project</label>
-                                        <input className={input} type="number" step="1" name="gd_project" value={form.gd_project} onChange={handleChange} />
-                                    </div>
-                                </div>
-                                {errors.grade_distribution && (
-                                    <p className="text-red-500 text-xs mt-1">
-                                        {errors.grade_distribution}
-                                    </p>
-                                )}
-
-                                <div className="flex gap-3 mt-6 justify-end">
-                                    <button onClick={handleCancel} className="px-4 py-2 border border-slate-300 text-slate-700 text-sm rounded-2xl hover:bg-slate-50">
+                                <p className="text-sm text-slate-600 mb-6 leading-relaxed">
+                                    Are you sure you want to remove <strong>{deleteTarget.cname}</strong>?
+                                </p>
+                                <div className="flex gap-2.5 items-center justify-end">
+                                    <button onClick={() => setDeleteTarget(null)}
+                                            className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer">
                                         Cancel
                                     </button>
-                                    <button onClick={handleSubmit} className="px-4 py-2 bg-slate-800 text-white text-sm rounded-2xl hover:bg-slate-700">
-                                        Submit
+                                    <button onClick={() => handleDelete(deleteTarget.id)}
+                                            className="px-4 py-2 text-sm font-medium bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-sm transition-colors cursor-pointer">
+                                        Delete
                                     </button>
                                 </div>
                             </div>
                         </div>
                     )}
-            </div>                    
-        </>
+
+                        {/* Add class form */}
+                        {isFormOpen && (
+                            <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs"
+                                onClick={handleCancel}>
+                                <div className="bg-white rounded-xl border border-slate-200 shadow-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-auto"
+                                    onClick={(e) => e.stopPropagation()}>
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <span className="text-2xl bg-slate-100 p-2 rounded-lg">
+                                            {editTarget ? '✏️' : '➕'}
+                                        </span>
+
+                                        <div>
+                                            <h2 className="text-lg font-semibold text-slate-950">
+                                                {editTarget ? 'Edit Class' : 'Add Class'}
+                                            </h2>
+                                        </div>
+                                    </div>
+                                    
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="flex flex-col">
+                                            <label className={label}>Class name</label>
+                                            <input className={`${input} ${errors.cname ? inputError : "border-slate-300"}`} name="cname" value={form.cname} onChange={handleChange}/>
+                                            {errors.cname && (
+                                                <p className="text-red-500 text-xs mt-1">
+                                                    {errors.cname}
+                                                </p>
+                                            )}
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <label className={label}>Grade</label>
+                                            <input className={`${input} ${errors.cgrade ? inputError : "border-slate-300"}`} type="number" step="1" name="cgrade" value={form.cgrade} onChange={handleChange} />
+                                            {errors.cgrade && (
+                                                <p className="text-red-500 text-xs mt-1">
+                                                    {errors.cgrade}
+                                                </p>
+                                            )}
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <label className={label}>Location</label>
+                                            <input className={`${input} ${errors.location ? inputError : "border-slate-300"}`} name="location" value={form.location} onChange={handleChange} />
+                                            {errors.location && (
+                                                <p className="text-red-500 text-xs mt-1">
+                                                    {errors.location}
+                                                </p>
+                                            )}
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <label className={label}>Year</label>
+                                            <input className={`${input} ${errors.year ? inputError : "border-slate-300"}`} type="number" step="1" name="year" value={form.year} onChange={handleChange} />
+                                            {errors.year && (
+                                                <p className="text-red-500 text-xs mt-1">
+                                                    {errors.year}
+                                                </p>
+                                            )}
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <label className={label}>Start time</label>
+                                            <input className={`${input} ${errors.start_time ? inputError : "border-slate-300"}`} type="time" step="60" name="start_time" value={form.start_time} onChange={handleChange} />
+                                            {errors.start_time && (
+                                                <p className="text-red-500 text-xs mt-1">
+                                                    {errors.start_time}
+                                                </p>
+                                            )}
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <label className={label}>End time</label>
+                                            <input className={`${input} ${errors.end_time ? inputError : "border-slate-300"}`} type="time" step="60" name="end_time" value={form.end_time} onChange={handleChange} />
+                                            {errors.end_time && (
+                                                <p className="text-red-500 text-xs mt-1">
+                                                    {errors.end_time}
+                                                </p>
+                                            )}
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <label className={label}>Teacher</label>
+                                            <select
+                                                className={`${input} ${errors.teacher ? inputError : "border-slate-300"}`}
+                                                name="teacher_tid"
+                                                value={form.teacher_tid}
+                                                onChange={(e) => {
+                                                    const selected = teachers.find(t => t.id === e.target.value);
+                                                    setForm({
+                                                        ...form,
+                                                        teacher_tid: selected?.id || '',
+                                                        teacher_tname: selected?.tname || '',
+                                                    });
+                                                }}
+                                            >
+                                                <option value="">Select a teacher...</option>
+                                                {teachers.map((t) => (
+                                                    <option key={t.id} value={t.id}>
+                                                        {t.tname} ({t.email})
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            {errors.teacher && (
+                                                <p className="text-red-500 text-xs mt-1">
+                                                    {errors.teacher}
+                                                </p>
+                                            )}
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <label className={label}>Student</label>
+                                            <select
+                                                className={`${input} ${errors.student ? inputError : "border-slate-300"}`}
+                                                name="student_sid"
+                                                value={form.student_sid}
+                                                onChange={(e) => {
+                                                    const selected = students.find(s => s.id === e.target.value);
+                                                    setForm({
+                                                        ...form,
+                                                        student_sid: selected?.id || '',
+                                                        student_sname: selected?.sname || '',
+                                                    });
+                                                }}
+                                            >
+                                                <option value="">Select a student...</option>
+                                                {students.map((s) => (
+                                                    <option key={s.id} value={s.id}>
+                                                        {s.sname}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            {errors.student && (
+                                                <p className="text-red-500 text-xs mt-1">
+                                                    {errors.student}
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <h3 className="text-sm font-semibold text-slate-700 mt-6 mb-2">Grade distribution (%)</h3>
+                                    <div className="grid grid-cols-4 gap-4">
+                                        <div className="flex flex-col">
+                                            <label className={label}>Homework</label>
+                                            <input className={input} type="number" step="1" name="gd_homework" value={form.gd_homework} onChange={handleChange} />
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <label className={label}>Quiz</label>
+                                            <input className={input} type="number" step="1" name="gd_quiz" value={form.gd_quiz} onChange={handleChange} />
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <label className={label}>Tests</label>
+                                            <input className={input} type="number" step="1" name="gd_tests" value={form.gd_tests} onChange={handleChange} />
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <label className={label}>Project</label>
+                                            <input className={input} type="number" step="1" name="gd_project" value={form.gd_project} onChange={handleChange} />
+                                        </div>
+                                    </div>
+                                    {errors.grade_distribution && (
+                                        <p className="text-red-500 text-xs mt-1">
+                                            {errors.grade_distribution}
+                                        </p>
+                                    )}
+
+                                    <div className="flex gap-3 mt-6 justify-end">
+                                        <button onClick={handleCancel} className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer">
+                                            Cancel
+                                        </button>
+                                        <button onClick={handleSubmit} className="px-4 py-2 text-sm font-medium bg-slate-800 hover:bg-slate-700 text-white rounded-lg shadow-sm transition-colors cursor-pointer">
+                                            Submit
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                </div>          
+            </div>          
+        </div>
     )
 }
