@@ -387,7 +387,7 @@ export default function Classes() {
 
                                         <div>
                                             <h2 className="text-lg font-semibold text-slate-950">
-                                                {editTarget ? 'Edit Class' : 'Add Class'}
+                                                {editTarget ? 'Edit Class' : 'Add New Class'}
                                             </h2>
                                         </div>
                                     </div>
