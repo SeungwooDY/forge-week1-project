@@ -1,5 +1,32 @@
-import { collection, getDocs, getDoc, doc, updateDoc, deleteDoc, query, where, arrayRemove } from 'firebase/firestore';
+import { collection, getDocs, getDoc, setDoc, doc, updateDoc, deleteDoc, query, where, arrayRemove, arrayUnion } from 'firebase/firestore';
 import { db } from "../../firebase";
+
+export async function addStudentToClass(studentId, classId) {
+    const studentSnap = await getDoc(doc(db, 'Students', studentId));
+    const student = studentSnap.data();
+
+    await updateDoc(doc(db, 'Students', studentId), {
+        classes: arrayUnion(classId)
+    });
+
+    await setDoc(doc(db, 'Classes', classId, 'Gradebook', studentId), {
+        sname: student.sname,
+        avg_grade: null,
+        grades: {
+            homework: [],
+            quiz: [],
+            test: [],
+            project: [],
+        }
+    });
+}
+
+export async function removeStudentFromClass(studentId, classId) {
+    await updateDoc(doc(db, 'Students', studentId), {
+        classes: arrayRemove(classId)
+    });
+    await deleteDoc(doc(db, 'Classes', classId, 'Gradebook', studentId));
+}
 
 export const getAllStudents = async () => {
     try {
