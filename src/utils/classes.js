@@ -1,9 +1,11 @@
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, setDoc } from 'firebase/firestore';
+import { collection, getDocs, getDoc, addDoc, updateDoc, deleteDoc, doc, setDoc, arrayUnion } from 'firebase/firestore';
 import { db } from "../../firebase";
 
 export async function addClass(data, studentId, studentName) {
     const classRef = await addDoc(collection(db, 'Classes'), data);
+    
     if (studentId && studentName) {
+        // create associated gradebook subcollection for the intial student
         const gradebookDocRef = doc(db, 'Classes', classRef.id, 'Gradebook', studentId);
         
         const dynamicGrades = {};
@@ -19,7 +21,19 @@ export async function addClass(data, studentId, studentName) {
             avg_grade: 0,
             grades: dynamicGrades
         });
-    }
+
+        // add the class to the student's list of classes
+        const studentRef = doc(db, 'Students', studentId);
+
+        try {
+            await updateDoc(studentRef, {
+                classes: arrayUnion(classRef.id)
+            });
+            console.log("Student updated successfully");
+        } catch (error) {
+            console.error("updateDoc failed:", error);
+        }
+    }    
 }
 
 export async function getAllClasses() {
