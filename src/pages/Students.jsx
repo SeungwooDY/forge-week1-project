@@ -9,6 +9,7 @@ import {
     Timestamp,
 } from 'firebase/firestore'
 import { db } from '../../firebase'
+import Navbar from '../components/Navbar'
 
 function Students() {
     const [students, setStudents] = useState([])
@@ -153,20 +154,7 @@ function Students() {
 
     return (
         <div className="min-h-screen bg-white text-slate-700">
-            <header className="flex items-center justify-between border-b border-slate-200 px-8 py-3">
-                <div className="text-xl font-bold text-slate-800">🎓 TJES</div>
-
-                <nav className="flex gap-8 text-sm font-semibold text-slate-500">
-                    <a href="/">Home</a>
-                    <a href="/dashboard">Dashboard</a>
-                    <a href="/classes">Classes</a>
-                    <a href="/students" className="rounded-md bg-slate-100 px-4 py-2 text-slate-800">
-                        Students
-                    </a>
-                    <a href="/teachers">Teacher Directory</a>
-                    <a href="/calendar">Calendar</a>
-                </nav>
-            </header>
+            <Navbar />
 
             <main>
                 <div className="mt-4 flex justify-center">
