@@ -2,22 +2,47 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import { getClassById } from "../utils/classes";
+import { getStudentsByClass } from '../utils/students';
+import { getGradebook, categoryAverage, overallGrade } from '../utils/grades'
 
 function ClassPage() {
-    const [classData, setClassData] = useState(null);
     const { classId } = useParams();
+    const [classData, setClassData] = useState(null);
+    const [students, setStudents] = useState([]);
+    const [gradebook, setGradebook] = useState([]);
+    
+    const fetchClass = async () => {
+        try {
+            const data = await getClassById(classId);
+            setClassData(data);
+            console.log(data);
+        } catch (error) {
+            console.error("Failed to fetch class: ", error);
+        }
+    };
+
+    const fetchStudents = async () => {
+        try {
+            const data = await getStudentsByClass(classId);
+            setStudents(data);
+        } catch (error) {
+            console.log("Error fetching students by class ID");
+        }
+    }
+
+    const fetchGradebook = async () => {
+        try {
+            const data = await getGradebook(classId);
+            setGradebook(data);
+        } catch (error) {
+            console.log("Error fetching gradebook", error);
+        }
+    }
 
     useEffect(() => {
-        const fetchClass = async () => {
-            try {
-                const data = await getClassById(classId);
-                setClassData(data);
-                console.log(data);
-            } catch (error) {
-                console.error("Failed to fetch class: ", error);
-            }
-        };
         fetchClass();
+        fetchStudents();
+        fetchGradebook();
     }, [classId]);
 
     const navigate = useNavigate();
@@ -43,6 +68,8 @@ function ClassPage() {
             </div>
         );
     }
+
+    const fmt = (val) => val == null ? '-' : `${val.toFixed(1)}%`;
 
     return (
         <div className="flex flex-col min-h-screen w-full bg-slate-50">
@@ -89,15 +116,34 @@ function ClassPage() {
                     </button>
                 </div>
 
-                <div className="grid grid-cols-12 gap-4 px-6 py-2 mt-5 text-xs font-semibold uppercase tracking-wider text-slate-400 border-b border-slate-200 mb-2">
-                    <div className="col-span-4">Students</div>
-                    <div className="col-span-1">Overall</div>
-                    <div className="col-span-1">Test</div>
-                    <div className="col-span-1">HW</div>
-                    <div className="col-span-1">Quiz</div>
-                    <div className="col-span-1">Project</div>
-                    <div className="col-span-3 text-right">Latest Comment</div>
-                </div>
+                {gradebook.length === 0 ? (
+                    <p className="text-sm text-slate-500">No students enrolled.</p>
+                ) : (
+                    <table className="min-w-full">
+                        <thead className="border-b border-slate-200">
+                            <tr>
+                                <th className="text-left px-4 py-3 text-sm font-semibold text-slate-700">Students</th>
+                                <th className="text-left px-4 py-3 text-sm font-semibold text-slate-700">Overall</th>
+                                <th className="text-left px-4 py-3 text-sm font-semibold text-slate-700">Homework</th>
+                                <th className="text-left px-4 py-3 text-sm font-semibold text-slate-700">Quiz</th>
+                                <th className="text-left px-4 py-3 text-sm font-semibold text-slate-700">Test</th>
+                                <th className="text-left px-4 py-3 text-sm font-semibold text-slate-700">Project</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {gradebook.map((g) => (
+                                <tr key={g.id} className="border-b border-slate-100 hover:bg-slate-50">
+                                    <td className="px-4 py-3 text-sm text-slate-800">{g.sname}</td>
+                                    <td className="px-4 py-3 text-sm text-slate-600">{fmt(overallGrade(g.grades, classData.grade_distribution))}</td>
+                                    <td className="px-4 py-3 text-sm text-slate-600">{fmt(categoryAverage(g.grades?.homework))}</td>
+                                    <td className="px-4 py-3 text-sm text-slate-600">{fmt(categoryAverage(g.grades?.quiz))}</td>
+                                    <td className="px-4 py-3 text-sm text-slate-600">{fmt(categoryAverage(g.grades?.test))}</td>
+                                    <td className="px-4 py-3 text-sm text-slate-600">{fmt(categoryAverage(g.grades?.project))}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                )}
             </div>
         </div>
     );

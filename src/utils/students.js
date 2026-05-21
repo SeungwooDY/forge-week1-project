@@ -1,4 +1,4 @@
-import { collection, getDocs, updateDoc, query, where, arrayRemove } from 'firebase/firestore';
+import { collection, getDocs, getDoc, doc, updateDoc, deleteDoc, query, where, arrayRemove } from 'firebase/firestore';
 import { db } from "../../firebase";
 
 export const getAllStudents = async () => {
@@ -30,4 +30,40 @@ export async function deleteClassFromStudents(classId) {
             })
         )
     );
+}
+
+export async function getStudentsByClass(classId) {
+    const q = query(
+        collection(db, 'Students'),
+        where('classes', 'array-contains', classId)
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+    }));
+}
+
+export async function deleteStudent(id) {
+    await deleteDoc(doc(db, 'Students', id));
+}
+
+export async function updateStudent(id, data) {
+    await updateDoc(doc(db, 'Students', id), data);
+}
+
+export async function removeStudentFromGradebooks(studentId) {
+    const studentSnap = await getDoc(doc(db, 'Students', studentId));
+    const classIds = studentSnap.data()?.classes || [];
+
+    await Promise.all(
+        classIds.map(classId =>
+            deleteDoc(doc(db, 'Classes', classId, 'Gradebook', studentId))
+        )
+    )
+}
+
+export async function deleteStudentCascade(studentId) {
+    await removeStudentFromGradebooks(studentId);
+    await deleteStudent(studentId);
 }
