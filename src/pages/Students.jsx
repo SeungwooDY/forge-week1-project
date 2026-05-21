@@ -1,22 +1,26 @@
 import { useEffect, useState } from 'react'
-import { collection, addDoc, getDocs } from 'firebase/firestore'
-import { useNavigate } from 'react-router-dom'
+import {
+    collection,
+    addDoc,
+    getDocs,
+    deleteDoc,
+    doc,
+    updateDoc,
+    Timestamp,
+} from 'firebase/firestore'
 import { db } from '../../firebase'
 
-import Sidebar from '../components/Sidebar'
-
 function Students() {
-    const navigate = useNavigate()
-
     const [students, setStudents] = useState([])
     const [showForm, setShowForm] = useState(false)
+    const [editingId, setEditingId] = useState(null)
+    const [searchTerm, setSearchTerm] = useState('')
 
     const [newStudent, setNewStudent] = useState({
-        student_id: '',
-        firstName: '',
-        lastName: '',
-        birthday: '',
-        grade: '',
+        sid: '',
+        sname: '',
+        DOB: '',
+        sgrade: '',
         finalGPA: '',
         address: '',
         classes: [],
@@ -24,16 +28,12 @@ function Students() {
 
     async function getStudents() {
         try {
-            console.log('Loading students...')
-
             const querySnapshot = await getDocs(collection(db, 'Students'))
 
             const studentList = querySnapshot.docs.map((doc) => ({
                 id: doc.id,
                 ...doc.data(),
             }))
-
-            console.log('Students loaded:', studentList)
 
             setStudents(studentList)
         } catch (error) {
@@ -54,248 +54,280 @@ function Students() {
         })
     }
 
+    function resetForm() {
+        setNewStudent({
+            sid: '',
+            sname: '',
+            DOB: '',
+            sgrade: '',
+            finalGPA: '',
+            address: '',
+            classes: [],
+        })
+
+        setEditingId(null)
+        setShowForm(false)
+    }
+
+    function formatDateForInput(studentDOB) {
+        if (!studentDOB) {
+            return ''
+        }
+
+        const date = studentDOB.toDate ? studentDOB.toDate() : new Date(studentDOB)
+
+        return date.toISOString().split('T')[0]
+    }
+
+    function formatDateForTable(studentDOB) {
+        if (!studentDOB) {
+            return ''
+        }
+
+        const date = studentDOB.toDate ? studentDOB.toDate() : new Date(studentDOB)
+
+        return date.toLocaleDateString()
+    }
+
+    function handleEdit(student) {
+        setEditingId(student.id)
+
+        setNewStudent({
+            sid: student.sid || student.student_id || '',
+            sname:
+                student.sname ||
+                `${student.firstName || student.fname || ''} ${student.lastName || ''}`.trim(),
+            DOB: formatDateForInput(student.DOB || student.birthday),
+            sgrade: student.sgrade || student.grade || '',
+            finalGPA: student.finalGPA || '',
+            address: Array.isArray(student.address)
+                ? student.address.join(' ')
+                : student.address || '',
+            classes: student.classes || [],
+        })
+
+        setShowForm(true)
+    }
+
+    async function handleDelete(studentId) {
+        try {
+            await deleteDoc(doc(db, 'Students', studentId))
+            await getStudents()
+        } catch (error) {
+            console.error('Error deleting student:', error)
+        }
+    }
+
     async function handleSubmit(event) {
         event.preventDefault()
 
         try {
-            console.log('Submitting student:', newStudent)
-
-            await addDoc(collection(db, 'Students'), {
-                student_id: newStudent.student_id,
-                firstName: newStudent.firstName,
-                lastName: newStudent.lastName,
-                birthday: newStudent.birthday,
-                grade: Number(newStudent.grade),
+            const studentData = {
+                sid: Number(newStudent.sid),
+                sname: newStudent.sname,
+                DOB: Timestamp.fromDate(new Date(newStudent.DOB)),
+                sgrade: Number(newStudent.sgrade),
                 finalGPA: Number(newStudent.finalGPA),
                 address: newStudent.address,
-                classes: [],
-            })
+                classes: newStudent.classes || [],
+            }
 
-            console.log('Student added successfully')
+            if (editingId) {
+                await updateDoc(doc(db, 'Students', editingId), studentData)
+            } else {
+                await addDoc(collection(db, 'Students'), studentData)
+            }
 
-            setNewStudent({
-                student_id: '',
-                firstName: '',
-                lastName: '',
-                birthday: '',
-                grade: '',
-                finalGPA: '',
-                address: '',
-                classes: [],
-            })
-
-            setShowForm(false)
-
+            resetForm()
             await getStudents()
         } catch (error) {
-            console.error('Error adding student:', error)
+            console.error('Error saving student:', error)
         }
     }
 
+    const filteredStudents = students.filter((student) => {
+        const name = student.sname || `${student.firstName || ''} ${student.lastName || ''}`
+
+        return name.toLowerCase().includes(searchTerm.toLowerCase())
+    })
+
     return (
-        <div className="flex min-h-screen bg-[#b8b0a7]">
-            <Sidebar />
+        <div className="min-h-screen bg-white text-slate-700">
+            <header className="flex items-center justify-between border-b border-slate-200 px-8 py-3">
+                <div className="text-xl font-bold text-slate-800">🎓 TJES</div>
 
-            <main className="flex-1 p-10 text-center">
-                <button
-                    onClick={() => navigate('/')}
-                    className="bg-purple-700 text-white px-8 py-4 rounded-2xl text-2xl font-bold mb-6"
-                >
-                    ⌂ Home
-                </button>
+                <nav className="flex gap-8 text-sm font-semibold text-slate-500">
+                    <a href="/">Home</a>
+                    <a href="/dashboard">Dashboard</a>
+                    <a href="/classes">Classes</a>
+                    <a href="/students" className="rounded-md bg-slate-100 px-4 py-2 text-slate-800">
+                        Students
+                    </a>
+                    <a href="/teachers">Teacher Directory</a>
+                    <a href="/calendar">Calendar</a>
+                </nav>
+            </header>
 
-                <h1 className="text-6xl font-bold text-purple-700 mb-10">
-                    Student Directory
-                </h1>
-
-                <div className="flex justify-center gap-6 mb-10">
+            <main>
+                <div className="mt-4 flex justify-center">
                     <button
-                        onClick={getStudents}
-                        className="bg-purple-700 text-white px-10 py-4 rounded-2xl text-2xl font-bold"
+                        onClick={() => {
+                            setEditingId(null)
+                            setShowForm(true)
+                        }}
+                        className="rounded-2xl border-2 border-black px-5 py-2 text-black"
                     >
-                        All Students
+                        Add Student
                     </button>
 
-                    <button
-                        onClick={() => setShowForm(true)}
-                        className="bg-purple-700 text-white px-10 py-4 rounded-2xl text-2xl font-bold"
-                    >
-                        Create/Edit Students
-                    </button>
+                    <input
+                        value={searchTerm}
+                        onChange={(event) => setSearchTerm(event.target.value)}
+                        placeholder="Search Students"
+                        className="w-64 rounded-2xl border-2 border-black px-5 py-2 outline-none"
+                    />
                 </div>
 
-                <div className="overflow-x-auto flex justify-center">
-                    <table className="bg-white shadow-lg">
-                        <thead>
-                            <tr>
-                                <th className="border border-black p-4">Student ID</th>
-                                <th className="border border-black p-4">First Name</th>
-                                <th className="border border-black p-4">Last Name</th>
-                                <th className="border border-black p-4">Date of Birth</th>
-                                <th className="border border-black p-4">Grade</th>
-                                <th className="border border-black p-4">Final GPA</th>
-                                <th className="border border-black p-4">Address</th>
+                <table className="mt-12 w-full border-collapse text-left text-sm">
+                    <thead>
+                        <tr className="border-b border-slate-200 text-slate-700">
+                            <th className="px-4 py-4">Student ID</th>
+                            <th className="px-4 py-4">Name</th>
+                            <th className="px-4 py-4">Date of Birth</th>
+                            <th className="px-4 py-4">Grade</th>
+                            <th className="px-4 py-4">Final GPA</th>
+                            <th className="px-4 py-4">Address</th>
+                            <th className="px-4 py-4"></th>
+                            <th className="px-4 py-4"></th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {filteredStudents.map((student) => (
+                            <tr key={student.id} className="border-b border-slate-100">
+                                <td className="px-4 py-5 font-semibold text-slate-800">
+                                    {student.sid || student.student_id || ''}
+                                </td>
+
+                                <td className="px-4 py-5">
+                                    {student.sname ||
+                                        `${student.firstName || student.fname || ''} ${student.lastName || ''}`}
+                                </td>
+
+                                <td className="px-4 py-5">
+                                    {formatDateForTable(student.DOB || student.birthday)}
+                                </td>
+
+                                <td className="px-4 py-5">
+                                    {student.sgrade || student.grade || ''}
+                                </td>
+
+                                <td className="px-4 py-5">
+                                    {student.finalGPA || ''}
+                                </td>
+
+                                <td className="px-4 py-5">
+                                    {Array.isArray(student.address)
+                                        ? student.address.join(' ')
+                                        : student.address || ''}
+                                </td>
+
+                                <td className="px-4 py-5">
+                                    <button
+                                        onClick={() => handleEdit(student)}
+                                        className="rounded-2xl border-2 border-blue-600 px-4 py-2 text-xs text-blue-600"
+                                    >
+                                        EDIT
+                                    </button>
+                                </td>
+
+                                <td className="px-4 py-5">
+                                    <button
+                                        onClick={() => handleDelete(student.id)}
+                                        className="rounded-2xl border-2 border-red-600 px-4 py-2 text-xs text-red-600"
+                                    >
+                                        DELETE
+                                    </button>
+                                </td>
                             </tr>
-                        </thead>
-
-                        <tbody>
-                            {students.map((student) => (
-                                <tr key={student.id}>
-                                    <td className="border border-black p-3">
-                                        {student.student_id || ''}
-                                    </td>
-
-                                    <td className="border border-black p-3">
-                                        {student.firstName || student.fname || ''}
-                                    </td>
-
-                                    <td className="border border-black p-3">
-                                        {student.lastName || student.sname || ''}
-                                    </td>
-
-                                    <td className="border border-black p-3">
-                                        {student.birthday || student.DOB?.toDate?.().toLocaleDateString() || ''}
-                                    </td>
-
-                                    <td className="border border-black p-3">
-                                        {student.grade || student.sgrade || ''}
-                                    </td>
-
-                                    <td className="border border-black p-3">
-                                        {student.finalGPA || ''}
-                                    </td>
-
-                                    <td className="border border-black p-3">
-                                        {Array.isArray(student.address)
-                                            ? student.address.join(' ')
-                                            : student.address || ''}
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                        ))}
+                    </tbody>
+                </table>
 
                 {showForm && (
-                    <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
+                    <div className="fixed inset-0 flex items-center justify-center bg-black/40">
                         <form
                             onSubmit={handleSubmit}
-                            className="bg-white p-10 rounded-2xl w-[900px]"
+                            className="w-[800px] rounded-2xl bg-white p-10"
                         >
-                            <div className="grid grid-cols-4 gap-6 mb-8">
-                                <div>
-                                    <label className="block text-left mb-2 font-bold">
-                                        Student ID
-                                    </label>
+                            <h2 className="mb-6 text-center text-2xl font-bold text-slate-800">
+                                {editingId ? 'Edit Student' : 'Add Student'}
+                            </h2>
 
-                                    <input
-                                        name="student_id"
-                                        value={newStudent.student_id}
-                                        onChange={handleChange}
-                                        className="border p-3 w-full rounded-lg"
-                                    />
-                                </div>
+                            <div className="mb-8 grid grid-cols-3 gap-6">
+                                <input
+                                    name="sid"
+                                    placeholder="Student ID"
+                                    value={newStudent.sid}
+                                    onChange={handleChange}
+                                    className="rounded-lg border p-3"
+                                />
 
-                                <div>
-                                    <label className="block text-left mb-2 font-bold">
-                                        Student First Name
-                                    </label>
+                                <input
+                                    name="sname"
+                                    placeholder="Student Name"
+                                    value={newStudent.sname}
+                                    onChange={handleChange}
+                                    className="rounded-lg border p-3"
+                                />
 
-                                    <input
-                                        name="firstName"
-                                        value={newStudent.firstName}
-                                        onChange={handleChange}
-                                        className="border p-3 w-full rounded-lg"
-                                    />
-                                </div>
+                                <input
+                                    type="date"
+                                    name="DOB"
+                                    value={newStudent.DOB}
+                                    onChange={handleChange}
+                                    className="rounded-lg border p-3"
+                                />
 
-                                <div>
-                                    <label className="block text-left mb-2 font-bold">
-                                        Student Last Name
-                                    </label>
+                                <input
+                                    name="sgrade"
+                                    placeholder="Grade"
+                                    value={newStudent.sgrade}
+                                    onChange={handleChange}
+                                    className="rounded-lg border p-3"
+                                />
 
-                                    <input
-                                        name="lastName"
-                                        value={newStudent.lastName}
-                                        onChange={handleChange}
-                                        className="border p-3 w-full rounded-lg"
-                                    />
-                                </div>
+                                <input
+                                    name="finalGPA"
+                                    placeholder="Final GPA"
+                                    value={newStudent.finalGPA}
+                                    onChange={handleChange}
+                                    className="rounded-lg border p-3"
+                                />
 
-                                <div>
-                                    <label className="block text-left mb-2 font-bold">
-                                        Date of Birth
-                                    </label>
-
-                                    <input
-                                        name="birthday"
-                                        value={newStudent.birthday}
-                                        onChange={handleChange}
-                                        className="border p-3 w-full rounded-lg"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-left mb-2 font-bold">
-                                        Grade
-                                    </label>
-
-                                    <input
-                                        name="grade"
-                                        value={newStudent.grade}
-                                        onChange={handleChange}
-                                        className="border p-3 w-full rounded-lg"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-left mb-2 font-bold">
-                                        GPA
-                                    </label>
-
-                                    <input
-                                        name="finalGPA"
-                                        value={newStudent.finalGPA}
-                                        onChange={handleChange}
-                                        className="border p-3 w-full rounded-lg"
-                                    />
-                                </div>
-
-                                <div className="col-span-2">
-                                    <label className="block text-left mb-2 font-bold">
-                                        Address
-                                    </label>
-
-                                    <input
-                                        name="address"
-                                        value={newStudent.address}
-                                        onChange={handleChange}
-                                        className="border p-3 w-full rounded-lg"
-                                    />
-                                </div>
+                                <input
+                                    name="address"
+                                    placeholder="Address"
+                                    value={newStudent.address}
+                                    onChange={handleChange}
+                                    className="rounded-lg border p-3"
+                                />
                             </div>
 
-                            <div className="flex justify-center gap-10">
+                            <div className="flex justify-center gap-6">
                                 <button
                                     type="submit"
-                                    className="bg-purple-700 text-white px-10 py-4 rounded-xl text-2xl font-bold"
+                                    className="rounded-xl bg-slate-800 px-8 py-3 font-bold text-white"
                                 >
                                     Submit
                                 </button>
 
                                 <button
                                     type="button"
-                                    onClick={() => setShowForm(false)}
-                                    className="bg-gray-200 px-10 py-4 rounded-xl text-2xl font-bold"
+                                    onClick={resetForm}
+                                    className="rounded-xl bg-slate-200 px-8 py-3 font-bold"
                                 >
                                     Cancel
-                                </button>
-
-                                <button
-                                    type="button"
-                                    className="bg-red-500 text-white px-10 py-4 rounded-xl text-2xl font-bold"
-                                >
-                                    Delete
                                 </button>
                             </div>
                         </form>
