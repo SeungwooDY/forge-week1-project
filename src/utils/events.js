@@ -1,26 +1,26 @@
+import { db } from '../../firebase';
+import { collection, getDocs } from 'firebase/firestore';
+
+
 export const getAllEvents = async () => {
-    return [
-        {
-            id: 1,
-            title: "Memorial Day Party",
-            start_date: new Date(), 
-            end_date: new Date(),
-            ongoing: true
-        },
-        {
-            id: 2,
-            title: "Science Fair",
-            /* Set start_date to tomorrow and end_date to the day after tomorrow */
-            start_date: new Date(new Date().setDate(new Date().getDate() + 1)), 
-            end_date: new Date(new Date().setDate(new Date().getDate() + 3)),
-            ongoing: false
-        },
-        {
-            id: 3,
-            title: "Art Exhibition",
-            start_date: new Date(), 
-            end_date: new Date(),
-            ongoing: true
-        }
-    ];
+    /* Fetches all documents from 'events' collection in Firestore */
+    const eventsCollection = collection(db, 'events');
+    const eventsSnapshot = await getDocs(eventsCollection);
+
+    const eventsList = eventsSnapshot.docs.map(doc => {
+        const data = doc.data();
+
+        /* Convert Firestore timestamps to JavaScript Date objects with chaining operator (?) */
+        const jsStartDate = data.start_date?.toDate();
+        const jsEndDate = data.end_date?.toDate();
+
+        return {
+            id: doc.id,
+            title: data.title,
+            start_date: jsStartDate,
+            end_date: jsEndDate,
+            ongoing: new Date() < jsEndDate
+        };
+    });
+    return eventsList;
 }
