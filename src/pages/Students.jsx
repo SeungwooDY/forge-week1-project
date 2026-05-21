@@ -17,15 +17,16 @@ function Students() {
     const [editingId, setEditingId] = useState(null)
     const [searchTerm, setSearchTerm] = useState('')
 
-    const [newStudent, setNewStudent] = useState({
+    const blankStudent = {
         sid: '',
         sname: '',
         DOB: '',
         sgrade: '',
-        finalGPA: '',
         address: '',
         classes: [],
-    })
+    }
+
+    const [newStudent, setNewStudent] = useState(blankStudent)
 
     async function getStudents() {
         try {
@@ -56,18 +57,34 @@ function Students() {
     }
 
     function resetForm() {
-        setNewStudent({
-            sid: '',
-            sname: '',
-            DOB: '',
-            sgrade: '',
-            finalGPA: '',
-            address: '',
-            classes: [],
-        })
-
+        setNewStudent(blankStudent)
         setEditingId(null)
         setShowForm(false)
+    }
+
+    function openAddStudentForm() {
+        setNewStudent(blankStudent)
+        setEditingId(null)
+        setShowForm(true)
+    }
+
+    function parseDOB(dateString) {
+        if (!dateString) {
+            return null
+        }
+
+        const trimmedDate = dateString.trim()
+
+        if (trimmedDate.includes('/')) {
+            const parts = trimmedDate.split('/')
+            const month = Number(parts[0])
+            const day = Number(parts[1])
+            const year = Number(parts[2])
+
+            return new Date(year, month - 1, day)
+        }
+
+        return new Date(trimmedDate)
     }
 
     function formatDateForInput(studentDOB) {
@@ -77,7 +94,11 @@ function Students() {
 
         const date = studentDOB.toDate ? studentDOB.toDate() : new Date(studentDOB)
 
-        return date.toISOString().split('T')[0]
+        const month = String(date.getMonth() + 1).padStart(2, '0')
+        const day = String(date.getDate()).padStart(2, '0')
+        const year = date.getFullYear()
+
+        return `${month}/${day}/${year}`
     }
 
     function formatDateForTable(studentDOB) {
@@ -100,7 +121,6 @@ function Students() {
                 `${student.firstName || student.fname || ''} ${student.lastName || ''}`.trim(),
             DOB: formatDateForInput(student.DOB || student.birthday),
             sgrade: student.sgrade || student.grade || '',
-            finalGPA: student.finalGPA || '',
             address: Array.isArray(student.address)
                 ? student.address.join(' ')
                 : student.address || '',
@@ -110,9 +130,15 @@ function Students() {
         setShowForm(true)
     }
 
-    async function handleDelete(studentId) {
+    async function handleDelete(student) {
         try {
-            await deleteDoc(doc(db, 'Students', studentId))
+            const studentClasses = student.classes || []
+
+            for (const classId of studentClasses) {
+                await deleteDoc(doc(db, 'Classes', classId, 'Gradebook', student.id))
+            }
+
+            await deleteDoc(doc(db, 'Students', student.id))
             await getStudents()
         } catch (error) {
             console.error('Error deleting student:', error)
@@ -123,12 +149,13 @@ function Students() {
         event.preventDefault()
 
         try {
+            const parsedDOB = parseDOB(newStudent.DOB)
+
             const studentData = {
                 sid: Number(newStudent.sid),
                 sname: newStudent.sname,
-                DOB: Timestamp.fromDate(new Date(newStudent.DOB)),
+                DOB: Timestamp.fromDate(parsedDOB),
                 sgrade: Number(newStudent.sgrade),
-                finalGPA: Number(newStudent.finalGPA),
                 address: newStudent.address,
                 classes: newStudent.classes || [],
             }
@@ -148,7 +175,6 @@ function Students() {
 
     const filteredStudents = students.filter((student) => {
         const name = student.sname || `${student.firstName || ''} ${student.lastName || ''}`
-
         return name.toLowerCase().includes(searchTerm.toLowerCase())
     })
 
@@ -159,10 +185,7 @@ function Students() {
             <main>
                 <div className="mt-4 flex justify-center">
                     <button
-                        onClick={() => {
-                            setEditingId(null)
-                            setShowForm(true)
-                        }}
+                        onClick={openAddStudentForm}
                         className="rounded-2xl border-2 border-black px-5 py-2 text-black"
                     >
                         Add Student
@@ -183,7 +206,6 @@ function Students() {
                             <th className="px-4 py-4">Name</th>
                             <th className="px-4 py-4">Date of Birth</th>
                             <th className="px-4 py-4">Grade</th>
-                            <th className="px-4 py-4">Final GPA</th>
                             <th className="px-4 py-4">Address</th>
                             <th className="px-4 py-4"></th>
                             <th className="px-4 py-4"></th>
@@ -211,10 +233,6 @@ function Students() {
                                 </td>
 
                                 <td className="px-4 py-5">
-                                    {student.finalGPA || ''}
-                                </td>
-
-                                <td className="px-4 py-5">
                                     {Array.isArray(student.address)
                                         ? student.address.join(' ')
                                         : student.address || ''}
@@ -231,7 +249,7 @@ function Students() {
 
                                 <td className="px-4 py-5">
                                     <button
-                                        onClick={() => handleDelete(student.id)}
+                                        onClick={() => handleDelete(student)}
                                         className="rounded-2xl border-2 border-red-600 px-4 py-2 text-xs text-red-600"
                                     >
                                         DELETE
@@ -247,18 +265,20 @@ function Students() {
                         <form
                             onSubmit={handleSubmit}
                             className="w-[800px] rounded-2xl bg-white p-10"
+                            autoComplete="off"
                         >
                             <h2 className="mb-6 text-center text-2xl font-bold text-slate-800">
                                 {editingId ? 'Edit Student' : 'Add Student'}
                             </h2>
 
-                            <div className="mb-8 grid grid-cols-3 gap-6">
+                            <div className="mb-8 grid grid-cols-2 gap-6">
                                 <input
                                     name="sid"
                                     placeholder="Student ID"
                                     value={newStudent.sid}
                                     onChange={handleChange}
                                     className="rounded-lg border p-3"
+                                    autoComplete="off"
                                 />
 
                                 <input
@@ -267,14 +287,17 @@ function Students() {
                                     value={newStudent.sname}
                                     onChange={handleChange}
                                     className="rounded-lg border p-3"
+                                    autoComplete="off"
                                 />
 
                                 <input
-                                    type="date"
+                                    type="text"
                                     name="DOB"
+                                    placeholder="MM/DD/YYYY"
                                     value={newStudent.DOB}
                                     onChange={handleChange}
                                     className="rounded-lg border p-3"
+                                    autoComplete="off"
                                 />
 
                                 <input
@@ -283,14 +306,7 @@ function Students() {
                                     value={newStudent.sgrade}
                                     onChange={handleChange}
                                     className="rounded-lg border p-3"
-                                />
-
-                                <input
-                                    name="finalGPA"
-                                    placeholder="Final GPA"
-                                    value={newStudent.finalGPA}
-                                    onChange={handleChange}
-                                    className="rounded-lg border p-3"
+                                    autoComplete="off"
                                 />
 
                                 <input
@@ -298,7 +314,8 @@ function Students() {
                                     placeholder="Address"
                                     value={newStudent.address}
                                     onChange={handleChange}
-                                    className="rounded-lg border p-3"
+                                    className="col-span-2 rounded-lg border p-3"
+                                    autoComplete="off"
                                 />
                             </div>
 
