@@ -5,7 +5,7 @@ const links = [
     { to: "/dashboard", label: "Dashboard" },
     { to: "/classes", label: "Classes" },
     { to: "/students", label: "Students" },
-    { to: "/teacherdirectory", label: "Teacher Directory" },
+    { to: "/teacherdirectory", label: "Teachers" },
     { to: "/calendar", label: "Calendar" },
 ];
 
