@@ -1,5 +1,6 @@
 import Navbar from '../components/Navbar'
 import { useState, useEffect } from 'react'
+import { useNavigate } from "react-router-dom";
 import { getAllClasses, addClass, deleteClass, updateClass } from '../utils/classes'
 import { getAllTeachers } from '../utils/teachers'
 import { getAllStudents, deleteClassFromStudents } from '../utils/students'
@@ -14,6 +15,12 @@ export default function Classes() {
     const [searchedClassName, setSearchedClassName] = useState('');
     const [errors, setErrors] = useState({});
     const [editTarget, setEditTarget] = useState(null);
+
+    const navigate = useNavigate();
+
+    const handleClassNavigation = (id) => {
+        navigate(`/classes/${id}`);
+    };
 
     const [form, setForm] = useState({
         cname: '',
@@ -248,7 +255,7 @@ export default function Classes() {
                 </button>
                 <input 
                     type="text"
-                    placeholder='Search Classes'
+                    placeholder='Search Classes By Name'
                     className='px-5 py-2 border-2 rounded-2xl'
                     value={searchedClassName}
                     onChange={(e) => setSearchedClassName(e.target.value)}
@@ -270,7 +277,7 @@ export default function Classes() {
                     </thead>
                     <tbody>
                         {filteredClasses.map((c) => (
-                            <tr key={c.id} className="border-b border-slate-100 hover:bg-slate-50">
+                            <tr key={c.id} onClick={() => handleClassNavigation(c.id)} className="border-b border-slate-100 hover:bg-slate-50 cursor-pointer">
                                 <td className="px-4 py-3 text-sm font-medium text-slate-800">{c.cname}</td>
                                 <td className="px-4 py-3 text-sm text-slate-600">{c.cgrade}</td>
                                 <td className="px-4 py-3 text-sm text-slate-600">{c.teacher?.tname}</td>
@@ -290,13 +297,17 @@ export default function Classes() {
                                 <td className="px-4 py-3">
                                     <div className="flex gap-2">
                                         <button
-                                            onClick={() => handleEdit(c)}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleEdit(c);}}
                                             className="text-blue-600 hover:text-blue-800 text-xs border-2 p-2 rounded-2xl"
                                         >
                                             EDIT
                                         </button>
                                         <button
-                                            onClick={() => setDeleteTarget(c)}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setDeleteTarget(c);}}
                                             className="text-red-600 hover:text-red-800 text-xs border-2 p-2 rounded-2xl"
                                         >
                                             DELETE
