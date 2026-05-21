@@ -1,5 +1,5 @@
 import { db } from '../../firebase';
-import { collection, getDocs, addDoc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 
  /* Fetches all documents from 'events' collection in Firestore */
 export const getAllEvents = async () => {
@@ -29,4 +29,16 @@ export const getAllEvents = async () => {
 export const addEvent = async (event) => {
     const eventsCollection = collection(db, 'Events');
     await addDoc(eventsCollection, event);
+}
+
+/* Edits an event document in the 'events' collection in Firestore */
+export const updateEvent = async (id, updatedEvent) => {
+    const eventRef = doc(db, 'Events', id);
+    await updateDoc(eventRef, updatedEvent);
+}
+
+/* Deletes an event document from the 'events' collection in Firestore */
+export const deleteEvent = async (id) => {
+    const eventRef = doc(db, 'Events', id);
+    await deleteDoc(eventRef);
 }
