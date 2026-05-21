@@ -9,6 +9,16 @@ import '../styles/Calendar.css'
 function Calendar() {
     const [date, setDate] = useState(new Date());
     const [events, setEvents] = useState([]);
+    const [form, setForm] = useState({
+        title: '',
+        start_date: '',
+        end_date: ''
+    });
+
+    // Handles title, start date, and end date input changes by updating the form state
+    const handleChange = (e) => {
+        setForm({...form, [e.target.className]: e.target.value});
+    }
     
     // Fetch events when the component mounts
     useEffect(() => {

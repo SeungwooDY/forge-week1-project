@@ -1,9 +1,8 @@
 import { db } from '../../firebase';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, addDoc } from 'firebase/firestore';
 
-
+ /* Fetches all documents from 'events' collection in Firestore */
 export const getAllEvents = async () => {
-    /* Fetches all documents from 'events' collection in Firestore */
     const eventsCollection = collection(db, 'events');
     const eventsSnapshot = await getDocs(eventsCollection);
 
@@ -14,6 +13,7 @@ export const getAllEvents = async () => {
         const jsStartDate = data.start_date?.toDate();
         const jsEndDate = data.end_date?.toDate();
 
+        /* If the new Date is before the end date, then the event is automatically ongoing */
         return {
             id: doc.id,
             title: data.title,
@@ -23,4 +23,10 @@ export const getAllEvents = async () => {
         };
     });
     return eventsList;
+}
+
+/* Adds a new event document to the 'events' collection in Firestore */
+export const addEvent = async (event) => {
+    const eventsCollection = collection(db, 'events');
+    await addDoc(eventsCollection, event);
 }
