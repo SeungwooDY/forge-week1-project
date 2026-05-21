@@ -1,26 +1,26 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
 
-import {
-    createBrowserRouter,
-    RouterProvider,
-} from 'react-router-dom'
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
-import './index.css'
+import "./index.css";
 
-import App from './App.jsx'
+import App from "./App.jsx";
 
-import Home from './pages/Home.jsx'
-import Dashboard from './pages/Dashboard.jsx'
-import Classes from './pages/Classes.jsx'
-import ClassPage from './pages/ClassPage.jsx'
-import Students from './pages/Students.jsx'
-import Teachers from './pages/Teachers.jsx'
-import Calendar from './pages/Calendar.jsx'
+import Home from "./pages/Home.jsx";
+import Dashboard from "./pages/Dashboard.jsx";
+import Classes from "./pages/Classes.jsx";
+import ClassPage from "./pages/ClassPage.jsx";
+import Students from "./pages/Students.jsx";
+import Assignments from "./pages/Assignments.jsx";
+import Grades from "./pages/Grades.jsx";
+import Roster from "./pages/Roster.jsx";
+import TeacherDirectory from "./pages/TeacherDirectory.jsx";
+import Calendar from "./pages/Calendar.jsx";
 
 const router = createBrowserRouter([
     {
-        path: '/',
+        path: "/",
         element: <App />,
         children: [
             {
@@ -28,35 +28,47 @@ const router = createBrowserRouter([
                 element: <Home />,
             },
             {
-                path: 'dashboard',
+                path: "dashboard",
                 element: <Dashboard />,
             },
             {
-                path: 'classes',
+                path: "classes",
                 element: <Classes />,
             },
             {
-                path: 'classes/:classId',
+                path: "classes/:classId",
                 element: <ClassPage />,
             },
             {
-                path: 'students',
+                path: "classes/:classId/assignments",
+                element: <Assignments />,
+            },
+            {
+                path: "classes/:classId/grades",
+                element: <Grades />,
+            },
+            {
+                path: "classes/:classId/roster",
+                element: <Roster />,
+            },
+            {
+                path: "students",
                 element: <Students />,
             },
             {
-                path: 'teachers',
-                element: <Teachers />,
+                path: "teacherdirectory",
+                element: <TeacherDirectory />,
             },
             {
-                path: 'calendar',
+                path: "calendar",
                 element: <Calendar />,
             },
         ],
     },
-])
+]);
 
-createRoot(document.getElementById('root')).render(
+createRoot(document.getElementById("root")).render(
     <StrictMode>
         <RouterProvider router={router} />
-    </StrictMode>
-)
+    </StrictMode>,
+);
