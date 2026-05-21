@@ -23,11 +23,11 @@ function ClassPage() {
     const navigate = useNavigate();
 
     const handleAssignmentClick = () => {
-        navigate(`/classes/assignments/${classId}/assignments`);
+        navigate(`/classes/${classId}/assignments`);
     };
 
     const handleStudentClick = () => {
-        navigate(`/classes/${classId}/students`);
+        navigate(`/classes/${classId}/roster`);
     };
 
     const handleGradeClick = () => {
