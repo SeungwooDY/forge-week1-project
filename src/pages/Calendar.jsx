@@ -53,6 +53,11 @@ function Calendar() {
 
         // For duplicate events
         const isDuplicate = events.some(existingEvent => {
+            // Ignores current event when checking for duplicates
+            if (editingId && existingEvent.id === editingId) {
+                return false; 
+            }
+            
             const sameName = existingEvent.title === form.title;
             const sameDate = isSameDay(existingEvent.start_date, new Date(form.start_date + 'T00:00:00'));
             return sameName && sameDate;
