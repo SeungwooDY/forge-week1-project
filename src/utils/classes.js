@@ -32,6 +32,28 @@ export async function getAllClasses() {
 
 export async function updateClass(id, data) {
     await updateDoc(doc(db, 'Classes', id), data);
+
+    const gradeDist = data['grade_distribution'];
+    const gradebook = await getDocs(collection(db, 'Classes', id, 'Gradebook'))
+    
+    // update all of the student's grades with new grade distribution
+    try {
+        await Promise.all(
+            gradebook.docs.map(async (gradeDoc) => {
+                const gradeData = gradeDoc.data();
+                const existingGrades = gradeData.grades || {};
+                const updatedGrades = {};
+                Object.keys(gradeDist).forEach((category) => {
+                    if (gradeDist[category] > 0) {
+                        updatedGrades[category] = existingGrades[category] || [];
+                    }
+                });
+                return updateDoc(gradeDoc.ref, {grades: updatedGrades});
+            }) 
+        );
+    } catch (error) {
+        console.error(error);
+    }
 }
 
 export async function deleteClass(id) {

@@ -126,7 +126,14 @@ export default function Classes() {
         const next = {};
 
         if (form.cgrade && !isInt(form.cgrade)) next.cgrade = 'Must be a whole number';
+        // make sure grade is reasonable (between 1 and 5)
+        if (form.cgrade && (form.cgrade < 1 || form.cgrade > 5)) next.cgrade = "Grade must be between 1 and 5";
         if (form.year && !isInt(form.year)) next.year = 'Must be a whole number';
+        // make sure year is reasonable (between 1900 and current year)
+        const currentYear = new Date().getFullYear();
+        if (form.year && (form.year < 1900 || form.year > currentYear)) {
+            next.year = `Year must be between 1900 and ${currentYear}`;
+        }
         if (form.gd_homework && !isInt(form.gd_homework)) next.gd_homework = 'Whole number only';
         if (form.gd_quiz && !isInt(form.gd_quiz)) next.gd_quiz = 'Whole number only';
         if (form.gd_tests && !isInt(form.gd_tests)) next.gd_tests = 'Whole number only';
@@ -140,6 +147,7 @@ export default function Classes() {
         } else if (gdValues.length > 0 && gdSum !== 100) {
             next.grade_distribution = 'Percentages must sum to 100';
         }
+
         setErrors(next);
         // doesn't show the error messages anywhere but it prevents submission if there are errors, which is the main point
         console.log(next);
