@@ -131,8 +131,8 @@ export default function Classes() {
         if (form.gd_quiz && !isInt(form.gd_quiz)) next.gd_quiz = 'Whole number only';
         if (form.gd_tests && !isInt(form.gd_tests)) next.gd_tests = 'Whole number only';
         if (form.gd_project && !isInt(form.gd_project)) next.gd_project = 'Whole number only';
-        // ensure all grade distribution fields are between 0 and 100 and they sum to 100
         
+        // ensure all grade distribution fields are between 0 and 100 and they sum to 100 
         const gdValues = [form.gd_homework, form.gd_quiz, form.gd_tests, form.gd_project].filter(v => v !== '');
         const gdSum = gdValues.reduce((sum, val) => sum + Number(val), 0);
         if (gdValues.some(v => v < 0 || v > 100)) {
@@ -318,17 +318,17 @@ export default function Classes() {
                                             name="teacher_tid"
                                             value={form.teacher_tid}
                                             onChange={(e) => {
-                                                const selected = teachers.find(t => t.email === e.target.value);
+                                                const selected = teachers.find(t => t.id === e.target.value);
                                                 setForm({
                                                     ...form,
-                                                    teacher_tid: e.target.value,
+                                                    teacher_tid: selected?.id || '',
                                                     teacher_tname: selected?.tname || '',
                                                 });
                                             }}
                                         >
                                             <option value="">Select a teacher...</option>
                                             {teachers.map((t) => (
-                                                <option key={t.id} value={t.email}>
+                                                <option key={t.id} value={t.id}>
                                                     {t.tname} ({t.email})
                                                 </option>
                                             ))}
@@ -341,17 +341,17 @@ export default function Classes() {
                                             name="student_sid"
                                             value={form.student_sid}
                                             onChange={(e) => {
-                                                const selected = students.find(s => s.sid === e.target.value);
+                                                const selected = students.find(s => s.id === e.target.value);
                                                 setForm({
                                                     ...form,
-                                                    student_sid: e.target.value,
+                                                    student_sid: selected?.id || '',
                                                     student_sname: selected?.sname || '',
                                                 });
                                             }}
                                         >
                                             <option value="">Select a student...</option>
                                             {students.map((s) => (
-                                                <option key={s.id} value={s.sid}>
+                                                <option key={s.id} value={s.id}>
                                                     {s.sname}
                                                 </option>
                                             ))}
