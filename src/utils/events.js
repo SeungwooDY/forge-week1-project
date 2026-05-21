@@ -3,7 +3,7 @@ import { collection, getDocs, addDoc } from 'firebase/firestore';
 
  /* Fetches all documents from 'events' collection in Firestore */
 export const getAllEvents = async () => {
-    const eventsCollection = collection(db, 'events');
+    const eventsCollection = collection(db, 'Events');
     const eventsSnapshot = await getDocs(eventsCollection);
 
     const eventsList = eventsSnapshot.docs.map(doc => {
@@ -16,10 +16,10 @@ export const getAllEvents = async () => {
         /* If the new Date is before the end date, then the event is automatically ongoing */
         return {
             id: doc.id,
-            title: data.title,
+            title: data.ename,
             start_date: jsStartDate,
             end_date: jsEndDate,
-            ongoing: new Date() < jsEndDate
+            ongoing: data.ongoing || (jsEndDate ? new Date() < jsEndDate : false)
         };
     });
     return eventsList;
@@ -27,6 +27,6 @@ export const getAllEvents = async () => {
 
 /* Adds a new event document to the 'events' collection in Firestore */
 export const addEvent = async (event) => {
-    const eventsCollection = collection(db, 'events');
+    const eventsCollection = collection(db, 'Events');
     await addDoc(eventsCollection, event);
 }
