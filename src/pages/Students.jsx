@@ -10,6 +10,9 @@ import {
 } from 'firebase/firestore'
 import { db } from '../../firebase'
 import Navbar from '../components/Navbar'
+import StudentCard from '../components/StudentCard'
+import { getAllClasses } from '../utils/classes'
+import { useNavigate } from 'react-router-dom'
 
 function Students() {
     const [students, setStudents] = useState([])
@@ -26,7 +29,20 @@ function Students() {
         classes: [],
     }
 
-    const [newStudent, setNewStudent] = useState(blankStudent)
+    const navigate = useNavigate()
+
+    const handleClassNavigation = (classId) => {
+        navigate(`/classes/${classId}`)
+    }
+
+    const [allClasses, setAllClasses] = useState([])
+
+    const getClasses = async () => {
+        const data = await getAllClasses()
+        setAllClasses(data)
+    }
+
+    const [newStudent, setNewStudent] = useState(blankStudent);
 
     async function getStudents() {
         try {
@@ -45,7 +61,15 @@ function Students() {
 
     useEffect(() => {
         getStudents()
+        getClasses()
     }, [])
+
+    const resolveClasses = (classIds) => {
+        if (!classIds) return []
+        return classIds
+            .map((id) => allClasses.find((c) => c.id === id))
+            .filter(Boolean)
+    }
 
     function handleChange(event) {
         const { name, value } = event.target
@@ -202,71 +226,38 @@ function Students() {
                     />
                 </div>
     
+                <div className="grid grid-cols-12 gap-4 px-6 py-2 text-xs font-semibold uppercase tracking-wider text-slate-400 border-b border-slate-200 mb-2">
+                    <div className="col-span-4">Name</div>
+                    <div className="col-span-3">Student ID</div>
+                    <div className="col-span-2">Grade</div>
+                    <div className="col-span-3 text-right">Actions</div>
+                </div>
                 <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-                    {filteredStudents.length === 0 ? (
-                        <div className="p-12 text-center">
-                            <span className="text-3xl block mb-2">🔍</span>
-                            <h3 className="text-sm font-medium text-slate-800 mb-1">
-                                No students found
-                            </h3>
-                            <p className="text-xs text-slate-500">
-                                We couldn't find any students matching that search
-                            </p>
-                        </div>
-                    ) : (
-                        <table className="w-full">
-                            <thead className="bg-slate-50 border-b border-slate-200">
-                                <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Student ID</th>
-                                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Name</th>
-                                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Date of Birth</th>
-                                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Grade</th>
-                                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Address</th>
-                                    <th className="px-6 py-3"></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredStudents.map((student) => (
-                                    <tr key={student.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                                        <td className="px-6 py-4 text-sm font-medium text-slate-900">
-                                            {student.sid || student.student_id || ''}
-                                        </td>
-                                        <td className="px-6 py-4 text-sm text-slate-600">
-                                            {student.sname ||
-                                                `${student.firstName || student.fname || ''} ${student.lastName || ''}`}
-                                        </td>
-                                        <td className="px-6 py-4 text-sm text-slate-600">
-                                            {formatDateForTable(student.DOB || student.birthday)}
-                                        </td>
-                                        <td className="px-6 py-4 text-sm text-slate-600">
-                                            {student.sgrade || student.grade || ''}
-                                        </td>
-                                        <td className="px-6 py-4 text-sm text-slate-600">
-                                            {Array.isArray(student.address)
-                                                ? student.address.join(' ')
-                                                : student.address || ''}
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex gap-2">
-                                                <button
-                                                    onClick={() => handleEdit(student)}
-                                                    className="px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100 border border-slate-200 rounded-lg transition-colors cursor-pointer"
-                                                >
-                                                    EDIT
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(student)}
-                                                    className="px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 border border-red-200 rounded-lg transition-colors cursor-pointer"
-                                                >
-                                                    DELETE
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    )}
+                {filteredStudents.length === 0 ? (
+                    <div className="p-12 text-center bg-white border border-slate-200 rounded-xl shadow-sm">
+                        <span className="text-3xl block mb-2">🔍</span>
+                        <h3 className="text-sm font-medium text-slate-800 mb-1">
+                            No students found
+                        </h3>
+                        <p className="text-xs text-slate-500">
+                            We couldn't find any students matching that search
+                        </p>
+                    </div>
+                ) : (
+                    <ul className="flex flex-col gap-2">
+                        {filteredStudents.map((student) => (
+                            <li key={student.id} className="list-none">
+                                <StudentCard
+                                    studentData={student}
+                                    classes={resolveClasses(student.classes)}
+                                    onEdit={handleEdit}
+                                    onDelete={handleDelete}
+                                    onClassClick={handleClassNavigation}
+                                />
+                            </li>
+                        ))}
+                    </ul>
+                )}
                 </div>
             </main>
     
