@@ -1,4 +1,11 @@
-import { collection, getDocs, updateDoc, query, where, arrayRemove } from 'firebase/firestore';
+import {
+    collection,
+    getDocs,
+    updateDoc,
+    query,
+    where,
+    arrayRemove,
+} from "firebase/firestore";
 import { db } from "../../firebase";
 
 export const getAllStudents = async () => {
@@ -17,17 +24,33 @@ export const getAllStudents = async () => {
 
 export async function deleteClassFromStudents(classId) {
     const q = query(
-        collection(db, 'Students'),
-        where('classes', 'array-contains', classId)
+        collection(db, "Students"),
+        where("classes", "array-contains", classId),
     );
     const snapshot = await getDocs(q);
 
     // Remove the class ID from each matching student's classes array
     await Promise.all(
-        snapshot.docs.map(studentDoc =>
+        snapshot.docs.map((studentDoc) =>
             updateDoc(studentDoc.ref, {
-                classes: arrayRemove(classId)
-            })
-        )
+                classes: arrayRemove(classId),
+            }),
+        ),
     );
+}
+
+export async function getStudentsByClass(classId) {
+    if (!classId) return [];
+    try {
+        const querySnapshot = await getDocs(
+            collection(db, "Classes", classId, "Students"),
+        );
+        return querySnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+        }));
+    } catch (error) {
+        console.error("Failed to fetch student profiles by class ID: ", error);
+        return [];
+    }
 }
