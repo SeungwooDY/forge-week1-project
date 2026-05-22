@@ -1,6 +1,7 @@
 import Navbar from "../components/Navbar";
 import { useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { getClassById } from "../utils/classes";
 import { getAllStudents, addStudentToClass, getStudentsByClass, removeStudentFromClass } from '../utils/students';
 
 function Roster() {
@@ -9,6 +10,7 @@ function Roster() {
     const [enrolled, setEnrolled] = useState([]);
     const [allStudents, setAllStudents] = useState([]);
     const [selectedStudentId, setSelectedStudentId] = useState('');
+    const [classData, setClassData] = useState(null)
 
     const fetchEnrolled = async () => {
         try {
@@ -28,6 +30,16 @@ function Roster() {
         }
     }
 
+    const fetchClass = async () => {
+        try {
+            const data = await getClassById(classId);
+            setClassData(data);
+            console.log(data);
+        } catch (error) {
+            console.error("Failed to fetch class: ", error);
+        }
+    };
+
     const handleDelete = async (id) => {
         await removeStudentFromClass(id, classId);
         setDeleteTarget(null);
@@ -42,12 +54,13 @@ function Roster() {
     }
 
     useEffect(() => {
+        fetchClass();
         fetchEnrolled();
         fetchAllStudents();
     }, [classId])
 
     const available = allStudents.filter(
-        (s) => !enrolled.some((e) => e.id === s.id)
+        (s) => !enrolled.some((e) => e.id === s.id) && s.sgrade === classData?.cgrade
     );
 
     return (
