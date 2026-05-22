@@ -532,7 +532,7 @@ export default function Classes() {
                                                     <option value="">Select a student...</option>
                                                     {students.map((s) => (
                                                         <option key={s.id} value={s.id}>
-                                                            {s.sname}
+                                                            {s.sname} (Grade {s.sgrade})
                                                         </option>
                                                     ))}
                                                 </select>
