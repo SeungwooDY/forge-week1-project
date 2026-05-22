@@ -126,9 +126,14 @@ function Assignments() {
                     {/* Header Section */}
                     <div className="flex justify-between items-end border-b border-slate-200 pb-5 mb-8">
                         <div>
-                            <button onClick={() => navigate(`/classes/${classId}`)} className="text-sm font-medium text-slate-500 hover:text-slate-800 mb-2 block transition-colors">
-                                Back to Dashboard
-                            </button>
+                            <div className="flex flex-wrap items-center gap-3 mb-2">
+                                <button onClick={() => navigate(`/classes/${classId}`)} className="text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors">
+                                    Back to Dashboard
+                                </button>
+                                {/* <button onClick={() => navigate('/classes')} className="text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors">
+                                    Back to All Classes
+                                </button> */}
+                            </div>
 
                             <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
                                 {classData ? classData.cname : "Loading..."} Coursework

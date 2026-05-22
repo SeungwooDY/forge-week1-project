@@ -10,6 +10,9 @@ import {
 } from 'firebase/firestore'
 import { db } from '../../firebase'
 import Navbar from '../components/Navbar'
+import StudentCard from '../components/StudentCard'
+import { getAllClasses } from '../utils/classes'
+import { useNavigate } from 'react-router-dom'
 
 function Students() {
     const [students, setStudents] = useState([])
@@ -26,7 +29,20 @@ function Students() {
         classes: [],
     }
 
-    const [newStudent, setNewStudent] = useState(blankStudent)
+    const navigate = useNavigate()
+
+    const handleClassNavigation = (classId) => {
+        navigate(`/classes/${classId}`)
+    }
+
+    const [allClasses, setAllClasses] = useState([])
+
+    const getClasses = async () => {
+        const data = await getAllClasses()
+        setAllClasses(data)
+    }
+
+    const [newStudent, setNewStudent] = useState(blankStudent);
 
     async function getStudents() {
         try {
@@ -45,7 +61,15 @@ function Students() {
 
     useEffect(() => {
         getStudents()
+        getClasses()
     }, [])
+
+    const resolveClasses = (classIds) => {
+        if (!classIds) return []
+        return classIds
+            .map((id) => allClasses.find((c) => c.id === id))
+            .filter(Boolean)
+    }
 
     function handleChange(event) {
         const { name, value } = event.target
@@ -179,166 +203,155 @@ function Students() {
     })
 
     return (
-        <div className="min-h-screen bg-white text-slate-700">
+        <div className="flex flex-col min-h-screen w-full bg-slate-50">
             <Navbar />
-
-            <main>
-                <div className="mt-4 flex justify-center">
+            <main className="flex-1 p-8">
+                <h1 className="text-2xl tracking-tight font-bold text-slate-900 mb-6">
+                    Student Directory
+                </h1>
+    
+                <div className="flex flex-col sm:flex-row gap-3 mb-8">
                     <button
                         onClick={openAddStudentForm}
-                        className="rounded-2xl border-2 border-black px-5 py-2 text-black"
+                        className="px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-medium rounded-lg shadow-sm transition-colors duration-150 cursor-pointer"
                     >
                         Add Student
                     </button>
-
                     <input
+                        type="text"
                         value={searchTerm}
                         onChange={(event) => setSearchTerm(event.target.value)}
-                        placeholder="Search Students"
-                        className="w-64 rounded-2xl border-2 border-black px-5 py-2 outline-none"
+                        placeholder="Search students by name..."
+                        className="flex-1 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
                     />
                 </div>
-
-                <table className="mt-12 w-full border-collapse text-left text-sm">
-                    <thead>
-                        <tr className="border-b border-slate-200 text-slate-700">
-                            <th className="px-4 py-4">Student ID</th>
-                            <th className="px-4 py-4">Name</th>
-                            <th className="px-4 py-4">Date of Birth</th>
-                            <th className="px-4 py-4">Grade</th>
-                            <th className="px-4 py-4">Address</th>
-                            <th className="px-4 py-4"></th>
-                            <th className="px-4 py-4"></th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
+    
+                <div className="grid grid-cols-12 gap-4 px-6 py-2 text-xs font-semibold uppercase tracking-wider text-slate-400 border-b border-slate-200 mb-2">
+                    <div className="col-span-4">Name</div>
+                    <div className="col-span-3">Student ID</div>
+                    <div className="col-span-2">Grade</div>
+                    <div className="col-span-3 text-right">Actions</div>
+                </div>
+                <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+                {filteredStudents.length === 0 ? (
+                    <div className="p-12 text-center bg-white border border-slate-200 rounded-xl shadow-sm">
+                        <span className="text-3xl block mb-2">🔍</span>
+                        <h3 className="text-sm font-medium text-slate-800 mb-1">
+                            No students found
+                        </h3>
+                        <p className="text-xs text-slate-500">
+                            We couldn't find any students matching that search
+                        </p>
+                    </div>
+                ) : (
+                    <ul className="flex flex-col gap-2">
                         {filteredStudents.map((student) => (
-                            <tr key={student.id} className="border-b border-slate-100">
-                                <td className="px-4 py-5 font-semibold text-slate-800">
-                                    {student.sid || student.student_id || ''}
-                                </td>
-
-                                <td className="px-4 py-5">
-                                    {student.sname ||
-                                        `${student.firstName || student.fname || ''} ${student.lastName || ''}`}
-                                </td>
-
-                                <td className="px-4 py-5">
-                                    {formatDateForTable(student.DOB || student.birthday)}
-                                </td>
-
-                                <td className="px-4 py-5">
-                                    {student.sgrade || student.grade || ''}
-                                </td>
-
-                                <td className="px-4 py-5">
-                                    {Array.isArray(student.address)
-                                        ? student.address.join(' ')
-                                        : student.address || ''}
-                                </td>
-
-                                <td className="px-4 py-5">
-                                    <button
-                                        onClick={() => handleEdit(student)}
-                                        className="rounded-2xl border-2 border-blue-600 px-4 py-2 text-xs text-blue-600"
-                                    >
-                                        EDIT
-                                    </button>
-                                </td>
-
-                                <td className="px-4 py-5">
-                                    <button
-                                        onClick={() => handleDelete(student)}
-                                        className="rounded-2xl border-2 border-red-600 px-4 py-2 text-xs text-red-600"
-                                    >
-                                        DELETE
-                                    </button>
-                                </td>
-                            </tr>
+                            <li key={student.id} className="list-none">
+                                <StudentCard
+                                    studentData={student}
+                                    classes={resolveClasses(student.classes)}
+                                    onEdit={handleEdit}
+                                    onDelete={handleDelete}
+                                    onClassClick={handleClassNavigation}
+                                />
+                            </li>
                         ))}
-                    </tbody>
-                </table>
-
-                {showForm && (
-                    <div className="fixed inset-0 flex items-center justify-center bg-black/40">
-                        <form
-                            onSubmit={handleSubmit}
-                            className="w-[800px] rounded-2xl bg-white p-10"
-                            autoComplete="off"
-                        >
-                            <h2 className="mb-6 text-center text-2xl font-bold text-slate-800">
-                                {editingId ? 'Edit Student' : 'Add Student'}
+                    </ul>
+                )}
+                </div>
+            </main>
+    
+            {showForm && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs"
+                    onClick={resetForm}>
+                    <form
+                        onSubmit={handleSubmit}
+                        onClick={(e) => e.stopPropagation()}
+                        className="bg-white rounded-xl border border-slate-200 shadow-xl p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-auto"
+                        autoComplete="off"
+                    >
+                        <div className="flex items-center gap-3 mb-6">
+                            <span className="text-2xl bg-slate-100 p-2 rounded-lg">
+                                {editingId ? '✏️' : '➕'}
+                            </span>
+                            <h2 className="text-lg font-semibold text-slate-950">
+                                {editingId ? 'Edit Student' : 'Add New Student'}
                             </h2>
-
-                            <div className="mb-8 grid grid-cols-2 gap-6">
+                        </div>
+    
+                        <div className="grid grid-cols-2 gap-4 mb-6">
+                            <div className="flex flex-col">
+                                <label className="text-xs font-medium text-slate-600 mb-1">Student ID</label>
                                 <input
                                     name="sid"
-                                    placeholder="Student ID"
                                     value={newStudent.sid}
                                     onChange={handleChange}
-                                    className="rounded-lg border p-3"
+                                    className="border border-slate-300 rounded-lg px-3 py-2 text-sm"
                                     autoComplete="off"
                                 />
-
+                            </div>
+                            <div className="flex flex-col">
+                                <label className="text-xs font-medium text-slate-600 mb-1">Name</label>
                                 <input
                                     name="sname"
-                                    placeholder="Student Name"
                                     value={newStudent.sname}
                                     onChange={handleChange}
-                                    className="rounded-lg border p-3"
+                                    className="border border-slate-300 rounded-lg px-3 py-2 text-sm"
                                     autoComplete="off"
                                 />
-
+                            </div>
+                            <div className="flex flex-col">
+                                <label className="text-xs font-medium text-slate-600 mb-1">Date of Birth</label>
                                 <input
                                     type="text"
                                     name="DOB"
                                     placeholder="MM/DD/YYYY"
                                     value={newStudent.DOB}
                                     onChange={handleChange}
-                                    className="rounded-lg border p-3"
+                                    className="border border-slate-300 rounded-lg px-3 py-2 text-sm"
                                     autoComplete="off"
                                 />
-
+                            </div>
+                            <div className="flex flex-col">
+                                <label className="text-xs font-medium text-slate-600 mb-1">Grade</label>
                                 <input
                                     name="sgrade"
-                                    placeholder="Grade"
                                     value={newStudent.sgrade}
                                     onChange={handleChange}
-                                    className="rounded-lg border p-3"
+                                    className="border border-slate-300 rounded-lg px-3 py-2 text-sm"
                                     autoComplete="off"
                                 />
-
+                            </div>
+                            <div className="flex flex-col col-span-2">
+                                <label className="text-xs font-medium text-slate-600 mb-1">Address</label>
                                 <input
                                     name="address"
-                                    placeholder="Address"
                                     value={newStudent.address}
                                     onChange={handleChange}
-                                    className="col-span-2 rounded-lg border p-3"
+                                    className="border border-slate-300 rounded-lg px-3 py-2 text-sm"
                                     autoComplete="off"
                                 />
                             </div>
-
-                            <div className="flex justify-center gap-6">
-                                <button
-                                    type="submit"
-                                    className="rounded-xl bg-slate-800 px-8 py-3 font-bold text-white"
-                                >
-                                    Submit
-                                </button>
-
-                                <button
-                                    type="button"
-                                    onClick={resetForm}
-                                    className="rounded-xl bg-slate-200 px-8 py-3 font-bold"
-                                >
-                                    Cancel
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                )}
-            </main>
+                        </div>
+    
+                        <div className="flex gap-2.5 items-center justify-end">
+                            <button
+                                type="button"
+                                onClick={resetForm}
+                                className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                className="px-4 py-2 text-sm font-medium bg-slate-800 hover:bg-slate-700 text-white rounded-lg shadow-sm transition-colors cursor-pointer"
+                            >
+                                Submit
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            )}
         </div>
     )
 }
