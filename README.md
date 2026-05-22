@@ -3,7 +3,7 @@
 ## Description
 This web app is an intuitive, simple dashboard where staff of Thomas Jefferson Elementary can add and edit information regarding their school such as student grades, roster, teacher information, school events, and more.
 
-Written in JavaScript, React.js, and Google Firestore.
+Written in JavaScript and React.js. Database managed by Google Firestore. Styled with Tailwind CSS.
 
 ## Overview
 Thomas Jefferson Elementary has been keeping track of their classes, rosters, grades, etc. with paper records which has lead to continuously making copies, losing critical information, and other issues that come from managing hundreds of students with only paper. This has resulted in inefficiencies and faculty frustration. The school administration is unfamiliar with web development, but have requested an easy to use, user friendly web application where they can migrate their data and offers the same functionality as their current organizational  model. 
