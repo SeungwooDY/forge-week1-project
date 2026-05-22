@@ -48,7 +48,7 @@ function Roster() {
 
     const handleAdd = async () => {
         if (!selectedStudentId) return;
-        await addStudentToClass(selectedStudentId, classId);
+        await addStudentToClass(selectedStudentId, classId, classData);
         setSelectedStudentId('');
         fetchEnrolled();
     }
