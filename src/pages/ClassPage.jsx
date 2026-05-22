@@ -94,12 +94,89 @@ function ClassPage() {
             <Navbar />
             <div className="flex flex-col min-h-screen w-full bg-slate-50">
                 <div className="flex-1 p-8">
-                    <div className="py-2 border-b border-slate-200 pb-5 justify-center">
-                        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
+                    <div className="border-b border-slate-200 pb-6 mb-6">
+                        <h1 className="text-3xl font-bold text-slate-900 tracking-tight mb-4">
                             {classData.cname}
                         </h1>
+
+                        <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                                
+                                <div>
+                                    <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">
+                                        Teacher
+                                    </p>
+                                    <p className="text-sm font-medium text-slate-800">
+                                        {classData.teacher?.tname || "—"}
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">
+                                        Grade
+                                    </p>
+                                    <p className="text-sm font-medium text-slate-800">
+                                        Grade {classData.cgrade}
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">
+                                        Location
+                                    </p>
+                                    <p className="text-sm font-medium text-slate-800">
+                                        {classData.location}
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">
+                                        School Year
+                                    </p>
+                                    <p className="text-sm font-medium text-slate-800">
+                                        {classData.year}-{String(classData.year + 1).slice(2)}
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">
+                                        Schedule
+                                    </p>
+                                    <p className="text-sm font-medium text-slate-800">
+                                        {classData.start_time?.toDate().toLocaleTimeString([], {
+                                            hour: "numeric",
+                                            minute: "2-digit",
+                                        })}
+                                        {" – "}
+                                        {classData.end_time?.toDate().toLocaleTimeString([], {
+                                            hour: "numeric",
+                                            minute: "2-digit",
+                                        })}
+                                    </p>
+                                </div>
+
+                                <div className="sm:col-span-2 lg:col-span-3">
+                                    <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">
+                                        Grade Distribution
+                                    </p>
+
+                                    <div className="flex flex-wrap gap-2 mt-2">
+                                        {Object.entries(classData.grade_distribution || {}).map(
+                                            ([category, percent]) => (
+                                                <span
+                                                    key={category}
+                                                    className="px-3 py-1 text-xs font-medium bg-slate-100 text-slate-700 rounded-full border border-slate-200"
+                                                >
+                                                    {percent}% {category}
+                                                </span>
+                                            )
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 px-6 md:flex md:flex-row md:justify-between w-full">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 mb-8 gap-4 px-6 md:flex md:flex-row md:justify-between w-full">
                         <button
                             onClick={handleAssignmentClick}
                             className="flex flex-col items-start p-5 bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 group text-left w-45"
