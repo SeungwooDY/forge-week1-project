@@ -12,6 +12,9 @@ import Dashboard from "./pages/Dashboard.jsx";
 import Classes from "./pages/Classes.jsx";
 import ClassPage from "./pages/ClassPage.jsx";
 import Students from "./pages/Students.jsx";
+import Assignments from "./pages/Assignments.jsx";
+import Grades from "./pages/Grades.jsx";
+import Roster from "./pages/Roster.jsx";
 import TeacherDirectory from "./pages/TeacherDirectory.jsx";
 import Calendar from "./pages/Calendar.jsx";
 
@@ -35,6 +38,18 @@ const router = createBrowserRouter([
             {
                 path: "classes/:classId",
                 element: <ClassPage />,
+            },
+            {
+                path: "classes/:classId/assignments",
+                element: <Assignments />,
+            },
+            {
+                path: "classes/:classId/grades",
+                element: <Grades />,
+            },
+            {
+                path: "classes/:classId/roster",
+                element: <Roster />,
             },
             {
                 path: "students",
