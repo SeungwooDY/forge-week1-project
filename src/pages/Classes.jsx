@@ -335,7 +335,7 @@ export default function Classes() {
                                 ))}
                             </tbody>
                         </table>
-                    )};
+                    )}
 
                     {deleteTarget && (
                         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs"
