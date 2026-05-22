@@ -15,6 +15,7 @@ export default function Classes() {
     const [searchedClassName, setSearchedClassName] = useState('');
     const [errors, setErrors] = useState({});
     const [editTarget, setEditTarget] = useState(null);
+    const [showInactiveClasses, setShowInactiveClasses] = useState(false);
 
     const navigate = useNavigate();
 
@@ -39,9 +40,33 @@ export default function Classes() {
         gd_project: '',
     });
 
-    const filteredClasses = classes.filter((c) => 
+    const now = new Date();
+    const currentMonth = now.getMonth(); // 0 = Jan, 5 = June
+    const currentCalendarYear = now.getFullYear();
+
+    // If month is Jan–June, use previous year
+    // <= June 2026 -> 2025 school year
+    // >= July 2026 -> 2026 school year
+    const activeSchoolYear =
+        currentMonth <= 5
+            ? currentCalendarYear - 1
+            : currentCalendarYear;
+
+    const searchedClasses = classes.filter((c) =>
         c.cname?.toLowerCase().includes(searchedClassName.toLowerCase())
     );
+
+    const activeClasses = searchedClasses.filter(
+        (c) => c.year === activeSchoolYear
+    );
+
+    const inactiveClasses = searchedClasses.filter(
+        (c) => c.year !== activeSchoolYear
+    );
+
+    const displayedClasses = showInactiveClasses
+        ? [...activeClasses, ...inactiveClasses]
+        : activeClasses;
 
     const fetchClasses = async () => {
         try {
@@ -269,7 +294,7 @@ export default function Classes() {
                     />
                 </div>
                 <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-                    {filteredClasses.length === 0 ? (
+                    {displayedClasses.length === 0 ? (
                         <div className="p-12 text-center">
                             <span className="text-3xl block mb-2">🔍</span>
                             <h3 className="text-sm font-medium text-slate-800 mb-1">
@@ -293,7 +318,7 @@ export default function Classes() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {filteredClasses.map((c) => (
+                                {displayedClasses.map((c) => (
                                     <tr key={c.id} onClick={() => handleClassNavigation(c.id)} className="border-b border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer-b border-slate-100 hover:bg-slate-50 cursor-pointer">
                                         <td className="px-6 py-4 text-sm font-medium text-slate-900">{c.cname}</td>
                                         <td className="px-6 py-4 text-sm text-slate-600">{c.cgrade}</td>
@@ -336,6 +361,17 @@ export default function Classes() {
                             </tbody>
                         </table>
                     )}
+
+                    <div className="p-4 border-t border-slate-200 flex justify-center">
+                        <button
+                            onClick={() => setShowInactiveClasses(!showInactiveClasses)}
+                            className="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 border border-slate-300 rounded-lg transition-colors cursor-pointer"
+                        >
+                            {showInactiveClasses
+                                ? 'Hide Inactive Classes'
+                                : `Show Inactive Classes (${inactiveClasses.length})`}
+                        </button>
+                    </div>
 
                     {deleteTarget && (
                         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs"
