@@ -168,7 +168,8 @@ export default function Classes() {
             next.teacher = 'Teacher is required';
         }
 
-        if (!form.student_sid) {
+        // student is only required when creating a new class not when editing
+        if (!editTarget && !form.student_sid) {
             next.student = 'Student is required';
         }
 
@@ -476,34 +477,36 @@ export default function Classes() {
                                                 </p>
                                             )}
                                         </div>
-                                        <div className="flex flex-col">
-                                            <label className={label}>Student</label>
-                                            <select
-                                                className={`${input} ${errors.student ? inputError : "border-slate-300"}`}
-                                                name="student_sid"
-                                                value={form.student_sid}
-                                                onChange={(e) => {
-                                                    const selected = students.find(s => s.id === e.target.value);
-                                                    setForm({
-                                                        ...form,
-                                                        student_sid: selected?.id || '',
-                                                        student_sname: selected?.sname || '',
-                                                    });
-                                                }}
-                                            >
-                                                <option value="">Select a student...</option>
-                                                {students.map((s) => (
-                                                    <option key={s.id} value={s.id}>
-                                                        {s.sname} (Grade {s.sgrade})
-                                                    </option>
-                                                ))}
-                                            </select>
-                                            {errors.student && (
-                                                <p className="text-red-500 text-xs mt-1">
-                                                    {errors.student}
-                                                </p>
-                                            )}
-                                        </div>
+                                        {!editTarget && (
+                                            <div className="flex flex-col">
+                                                <label className={label}>Student</label>
+                                                <select
+                                                    className={`${input} ${errors.student ? inputError : "border-slate-300"}`}
+                                                    name="student_sid"
+                                                    value={form.student_sid}
+                                                    onChange={(e) => {
+                                                        const selected = students.find(s => s.id === e.target.value);
+                                                        setForm({
+                                                            ...form,
+                                                            student_sid: selected?.id || '',
+                                                            student_sname: selected?.sname || '',
+                                                        });
+                                                    }}
+                                                >
+                                                    <option value="">Select a student...</option>
+                                                    {students.map((s) => (
+                                                        <option key={s.id} value={s.id}>
+                                                            {s.sname}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                                {errors.student && (
+                                                    <p className="text-red-500 text-xs mt-1">
+                                                        {errors.student}
+                                                    </p>
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
 
                                     <h3 className="text-sm font-semibold text-slate-700 mt-6 mb-2">Grade distribution (%)</h3>
