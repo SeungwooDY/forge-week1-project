@@ -87,7 +87,6 @@ export default function StudentRow({
             if (onUpdateSuccess) {
                 onUpdateSuccess();
             }
-
             setGradeToEdit(null);
         } catch (err) {
             console.error("Failed to update grade:", err);
