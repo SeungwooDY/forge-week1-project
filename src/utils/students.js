@@ -13,9 +13,18 @@ import {
 } from "firebase/firestore";
 import { db } from "../../firebase";
 
-export async function addStudentToClass(studentId, classId) {
+export async function addStudentToClass(studentId, classId, classData) {
     const studentSnap = await getDoc(doc(db, "Students", studentId));
     const student = studentSnap.data();
+
+    const gradeDist = classData.grade_distribution;
+    const grades = {};
+
+    Object.entries(gradeDist).forEach((key) => {
+        if (gradeDist[key] > 0) {
+            dynamicGrades[key] = [];
+        }
+    });
 
     await updateDoc(doc(db, "Students", studentId), {
         classes: arrayUnion(classId),
@@ -24,12 +33,7 @@ export async function addStudentToClass(studentId, classId) {
     await setDoc(doc(db, "Classes", classId, "Gradebook", studentId), {
         sname: student.sname,
         avg_grade: null,
-        grades: {
-            homework: [],
-            quiz: [],
-            test: [],
-            project: [],
-        },
+        grades
     });
 }
 
