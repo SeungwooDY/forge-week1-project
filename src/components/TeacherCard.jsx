@@ -41,15 +41,15 @@ export default function TeacherCard({
                     <div className="col-span-3 min-w-0 flex items-center justify-end gap-3">
                         <button
                             onClick={handleEditClick}
-                            className="p-1.5 text-base hover:bg-slate-100 rounded-md transition-colors duration-150 cursor-pointer select-none"
+                            className="px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100 border border-slate-200 rounded-lg transition-colors cursor-pointer"
                         >
-                            ✏️
+                            Edit
                         </button>
                         <button
                             onClick={handleDeleteClick}
-                            className="p-1.5 text-base hover:bg-red-50 rounded-md transition-colors duration-150 cursor-pointer select-none"
+                            className="px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 border border-red-200 rounded-lg transition-colors cursor-pointer"
                         >
-                            🗑️
+                            Delete
                         </button>
                     </div>
                 </div>
