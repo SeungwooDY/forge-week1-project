@@ -26,15 +26,6 @@ export async function addStudentToClass(studentId, classId, classData) {
         }
     });
 
-    const gradeDist = classData.grade_distribution;
-    const grades = {};
-
-    Object.entries(gradeDist).forEach((key) => {
-        if (gradeDist[key] > 0) {
-            dynamicGrades[key] = [];
-        }
-    });
-
     await updateDoc(doc(db, "Students", studentId), {
         classes: arrayUnion(classId),
     });
