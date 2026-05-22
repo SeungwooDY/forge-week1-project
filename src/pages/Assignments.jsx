@@ -82,9 +82,22 @@ function Assignments() {
 
     const openCreateModal = () => {
         setEditingId(null);
+
+        // Find the first valid category from grade distribution or default to 'homework'
+        let defaultCategory = "";
+        if (classData && classData.grade_distribution) {
+            const validCategories = Object.entries(classData.grade_distribution)
+                .filter(([categoryName, weight]) => weight > 0)
+                .map(([categoryName, ]) => categoryName);
+
+            if (validCategories.length > 0) {
+                defaultCategory = validCategories[0];
+            }
+        }
+        
         setForm({
             title: '',
-            category: 'homework',
+            category: defaultCategory || 'homework',
             max_score: 100
         });
         setIsModalOpen(true);
@@ -184,16 +197,24 @@ function Assignments() {
                             
                             <div>
                                 <label className={labelStyle}>Grading Category</label>
-                                <select 
+                                 <select 
                                     className={inputStyle} 
                                     name="category" 
                                     value={form.category} 
                                     onChange={handleChange}
                                 >
-                                    <option value="homework">Homework (15%)</option>
-                                    <option value="project">Project (15%)</option>
-                                    <option value="quiz">Quiz (40%)</option>
-                                    <option value="tests">Tests (30%)</option>
+                                    {/* Differs by each class's grade distribution */}
+                                    {classData && classData.grade_distribution ? (
+                                        Object.entries(classData.grade_distribution)
+                                            .filter(([categoryName, weight]) => weight > 0) 
+                                            .map(([categoryName, weight]) => (
+                                                <option key={categoryName} value={categoryName}>
+                                                    {categoryName.charAt(0).toUpperCase() + categoryName.slice(1)} ({weight}%)
+                                                </option>
+                                            ))
+                                    ) : (
+                                        <option value="">Loading categories...</option>
+                                    )}
                                 </select>
                             </div>
                             
