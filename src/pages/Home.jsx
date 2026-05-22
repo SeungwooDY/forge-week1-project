@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 function Home() {
     const quickAccessItems = [
         { label: 'Student Directory', to: '/students', icon: '👥' },
-        { label: 'Teacher Directory', to: '/teachers', icon: '🧑‍🏫' },
+        { label: 'Teacher Directory', to: '/teacherdirectory', icon: '🧑‍🏫' },
         { label: 'Class Directory', to: '/classes', icon: '📚' },
         { label: 'School Calendar', to: '/calendar', icon: '📅' },
     ]
