@@ -47,7 +47,15 @@ function Grades() {
     }, [classId]);
 
     const getOverallGrade = (studentGrades, gradeDistribution) => {
-        const rawScore = overallGrade(studentGrades, gradeDistribution);
+        console.log(studentGrades);
+        const filteredGrades = Object.fromEntries(
+            Object.entries(studentGrades).map(([category, assignments]) => [
+                category,
+                assignments.filter((assignment) => assignment.score !== null),
+            ]),
+        );
+
+        const rawScore = overallGrade(filteredGrades, gradeDistribution);
 
         return rawScore !== null ? `${rawScore.toFixed(1)}%` : "-";
     };

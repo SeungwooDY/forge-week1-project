@@ -37,8 +37,12 @@ export default function StudentRow({
         if (!gradeToEdit) return;
 
         const parsedScore = parseFloat(newScore);
-        if (isNaN(parsedScore) || parsedScore < 0) {
-            console.error("Please enter a valid, non-negative score.");
+        if (
+            isNaN(parsedScore) ||
+            parsedScore < 0 ||
+            parsedScore > gradeToEdit.max
+        ) {
+            console.error("Please enter a valid score.");
             return;
         }
 

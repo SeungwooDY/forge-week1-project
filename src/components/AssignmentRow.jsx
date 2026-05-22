@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 export default function AssignmentRow({ type, assignmentData, onEdit }) {
     return (
         <div className="grid grid-cols-5 gap-4 border-b border-slate-200">
@@ -13,7 +11,9 @@ export default function AssignmentRow({ type, assignmentData, onEdit }) {
                 {assignmentData.max}
             </div>
             <div className="col-span-1 min-w-0 text-sm text-slate-500">
-                {assignmentData.score} / {assignmentData.max}
+                {assignmentData.score === null
+                    ? "N/A"
+                    : `${assignmentData.score} / ${assignmentData.max}`}
             </div>
             <div className="text-right">
                 <button
