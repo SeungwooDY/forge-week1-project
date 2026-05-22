@@ -1,15 +1,27 @@
-import { collection, getDocs, getDoc, setDoc, doc, updateDoc, deleteDoc, query, where, arrayRemove, arrayUnion } from 'firebase/firestore';
+import {
+    collection,
+    getDocs,
+    getDoc,
+    setDoc,
+    doc,
+    updateDoc,
+    deleteDoc,
+    query,
+    where,
+    arrayRemove,
+    arrayUnion,
+} from "firebase/firestore";
 import { db } from "../../firebase";
 
 export async function addStudentToClass(studentId, classId) {
-    const studentSnap = await getDoc(doc(db, 'Students', studentId));
+    const studentSnap = await getDoc(doc(db, "Students", studentId));
     const student = studentSnap.data();
 
-    await updateDoc(doc(db, 'Students', studentId), {
-        classes: arrayUnion(classId)
+    await updateDoc(doc(db, "Students", studentId), {
+        classes: arrayUnion(classId),
     });
 
-    await setDoc(doc(db, 'Classes', classId, 'Gradebook', studentId), {
+    await setDoc(doc(db, "Classes", classId, "Gradebook", studentId), {
         sname: student.sname,
         avg_grade: null,
         grades: {
@@ -17,15 +29,15 @@ export async function addStudentToClass(studentId, classId) {
             quiz: [],
             test: [],
             project: [],
-        }
+        },
     });
 }
 
 export async function removeStudentFromClass(studentId, classId) {
-    await updateDoc(doc(db, 'Students', studentId), {
-        classes: arrayRemove(classId)
+    await updateDoc(doc(db, "Students", studentId), {
+        classes: arrayRemove(classId),
     });
-    await deleteDoc(doc(db, 'Classes', classId, 'Gradebook', studentId));
+    await deleteDoc(doc(db, "Classes", classId, "Gradebook", studentId));
 }
 
 export const getAllStudents = async () => {
@@ -44,50 +56,56 @@ export const getAllStudents = async () => {
 
 export async function deleteClassFromStudents(classId) {
     const q = query(
-        collection(db, 'Students'),
-        where('classes', 'array-contains', classId)
+        collection(db, "Students"),
+        where("classes", "array-contains", classId),
     );
     const snapshot = await getDocs(q);
 
     // Remove the class ID from each matching student's classes array
     await Promise.all(
-        snapshot.docs.map(studentDoc =>
+        snapshot.docs.map((studentDoc) =>
             updateDoc(studentDoc.ref, {
-                classes: arrayRemove(classId)
-            })
-        )
+                classes: arrayRemove(classId),
+            }),
+        ),
     );
 }
 
 export async function getStudentsByClass(classId) {
-    const q = query(
-        collection(db, 'Students'),
-        where('classes', 'array-contains', classId)
-    );
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-    }));
+    if (!classId) return [];
+    try {
+        const q = query(
+            collection(db, "Students"),
+            where("classes", "array-contains", classId),
+        );
+        const snapshot = await getDocs(q);
+        return snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+        }));
+    } catch (error) {
+        console.error("Failed to fetch student profiles: ", error);
+        return [];
+    }
 }
 
 export async function deleteStudent(id) {
-    await deleteDoc(doc(db, 'Students', id));
+    await deleteDoc(doc(db, "Students", id));
 }
 
 export async function updateStudent(id, data) {
-    await updateDoc(doc(db, 'Students', id), data);
+    await updateDoc(doc(db, "Students", id), data);
 }
 
 export async function removeStudentFromGradebooks(studentId) {
-    const studentSnap = await getDoc(doc(db, 'Students', studentId));
+    const studentSnap = await getDoc(doc(db, "Students", studentId));
     const classIds = studentSnap.data()?.classes || [];
 
     await Promise.all(
-        classIds.map(classId =>
-            deleteDoc(doc(db, 'Classes', classId, 'Gradebook', studentId))
-        )
-    )
+        classIds.map((classId) =>
+            deleteDoc(doc(db, "Classes", classId, "Gradebook", studentId)),
+        ),
+    );
 }
 
 export async function deleteStudentCascade(studentId) {

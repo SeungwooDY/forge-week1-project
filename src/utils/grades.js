@@ -1,11 +1,13 @@
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../firebase";
 
 export async function getGradebook(classId) {
-    const snapshot = await getDocs(collection(db, 'Classes', classId, 'Gradebook'));
-    return snapshot.docs.map(doc => ({
+    const snapshot = await getDocs(
+        collection(db, "Classes", classId, "Gradebook"),
+    );
+    return snapshot.docs.map((doc) => ({
         id: doc.id,
-        ...doc.data()
+        ...doc.data(),
     }));
 }
 

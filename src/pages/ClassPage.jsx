@@ -2,15 +2,15 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import { getClassById } from "../utils/classes";
-import { getStudentsByClass } from '../utils/students';
-import { getGradebook, categoryAverage, overallGrade } from '../utils/grades'
+import { getStudentsByClass } from "../utils/students";
+import { getGradebook, categoryAverage, overallGrade } from "../utils/grades";
 
 function ClassPage() {
     const { classId } = useParams();
     const [classData, setClassData] = useState(null);
     const [students, setStudents] = useState([]);
     const [gradebook, setGradebook] = useState([]);
-    
+
     const fetchClass = async () => {
         try {
             const data = await getClassById(classId);
@@ -28,16 +28,17 @@ function ClassPage() {
         } catch (error) {
             console.log("Error fetching students by class ID");
         }
-    }
+    };
 
     const fetchGradebook = async () => {
         try {
             const data = await getGradebook(classId);
+            console.log("gradebook: ", data);
             setGradebook(data);
         } catch (error) {
             console.log("Error fetching gradebook", error);
         }
-    }
+    };
 
     useEffect(() => {
         fetchClass();
@@ -69,14 +70,30 @@ function ClassPage() {
         );
     }
 
-    const fmt = (val) => val == null ? '-' : `${val.toFixed(1)}%`;
+    const cleanOverallGrades = (grades) => {
+        if (!grades) return {};
+        return Object.fromEntries(
+            Object.entries(grades).map(([category, assignments]) => [
+                category,
+                (assignments || []).filter((a) => a.score !== null),
+            ]),
+        );
+    };
+
+    const getCategoryAverage = (assignments) => {
+        if (!assignments) return null;
+        const validAssignments = assignments.filter((a) => a.score !== null);
+        if (validAssignments.length === 0) return null;
+        return categoryAverage(validAssignments);
+    };
+
+    const fmt = (val) => (val == null ? "-" : `${val.toFixed(1)}%`);
 
     return (
         <>
             <Navbar />
             <div className="flex flex-col min-h-screen w-full bg-slate-50">
                 <div className="flex-1 p-8">
-                    
                     <div className="py-2 border-b border-slate-200 pb-5 justify-center">
                         <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
                             {classData.cname}
@@ -119,37 +136,91 @@ function ClassPage() {
                     </div>
 
                     {gradebook.length === 0 ? (
-                        <p className="text-sm text-slate-500">No students enrolled.</p>
+                        <p className="text-sm text-slate-500">
+                            No students enrolled.
+                        </p>
                     ) : (
                         <table className="min-w-full">
                             <thead className="border-b border-slate-200">
                                 <tr>
-                                    <th className="text-left px-4 py-3 text-sm font-semibold text-slate-700">Students</th>
-                                    <th className="text-left px-4 py-3 text-sm font-semibold text-slate-700">Overall</th>
-                                    <th className="text-left px-4 py-3 text-sm font-semibold text-slate-700">Homework</th>
-                                    <th className="text-left px-4 py-3 text-sm font-semibold text-slate-700">Quiz</th>
-                                    <th className="text-left px-4 py-3 text-sm font-semibold text-slate-700">Test</th>
-                                    <th className="text-left px-4 py-3 text-sm font-semibold text-slate-700">Project</th>
+                                    <th className="text-left px-4 py-3 text-sm font-semibold text-slate-700">
+                                        Students
+                                    </th>
+                                    <th className="text-left px-4 py-3 text-sm font-semibold text-slate-700">
+                                        Overall
+                                    </th>
+                                    <th className="text-left px-4 py-3 text-sm font-semibold text-slate-700">
+                                        Homework
+                                    </th>
+                                    <th className="text-left px-4 py-3 text-sm font-semibold text-slate-700">
+                                        Quiz
+                                    </th>
+                                    <th className="text-left px-4 py-3 text-sm font-semibold text-slate-700">
+                                        Test
+                                    </th>
+                                    <th className="text-left px-4 py-3 text-sm font-semibold text-slate-700">
+                                        Project
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {gradebook.map((g) => (
-                                    <tr key={g.id} className="border-b border-slate-100 hover:bg-slate-50">
-                                        <td className="px-4 py-3 text-sm text-slate-800">{g.sname}</td>
-                                        <td className="px-4 py-3 text-sm text-slate-600">{fmt(overallGrade(g.grades, classData.grade_distribution))}</td>
-                                        <td className="px-4 py-3 text-sm text-slate-600">{fmt(categoryAverage(g.grades?.homework))}</td>
-                                        <td className="px-4 py-3 text-sm text-slate-600">{fmt(categoryAverage(g.grades?.quiz))}</td>
-                                        <td className="px-4 py-3 text-sm text-slate-600">{fmt(categoryAverage(g.grades?.test))}</td>
-                                        <td className="px-4 py-3 text-sm text-slate-600">{fmt(categoryAverage(g.grades?.project))}</td>
-                                    </tr>
-                                ))}
+                                {gradebook.map((g) => {
+                                    const cleanGrades = cleanOverallGrades(
+                                        g.grades,
+                                    );
+                                    return (
+                                        <tr
+                                            key={g.id}
+                                            className="border-b border-slate-100 hover:bg-slate-50"
+                                        >
+                                            <td className="px-4 py-3 text-sm text-slate-800">
+                                                {g.sname}
+                                            </td>
+                                            <td className="px-4 py-3 text-sm text-slate-600">
+                                                {fmt(
+                                                    overallGrade(
+                                                        cleanGrades,
+                                                        classData.grade_distribution,
+                                                    ),
+                                                )}
+                                            </td>
+                                            <td className="px-4 py-3 text-sm text-slate-600">
+                                                {fmt(
+                                                    getCategoryAverage(
+                                                        g.grades?.homework,
+                                                    ),
+                                                )}
+                                            </td>
+                                            <td className="px-4 py-3 text-sm text-slate-600">
+                                                {fmt(
+                                                    getCategoryAverage(
+                                                        g.grades?.quiz,
+                                                    ),
+                                                )}
+                                            </td>
+                                            <td className="px-4 py-3 text-sm text-slate-600">
+                                                {fmt(
+                                                    getCategoryAverage(
+                                                        g.grades?.test,
+                                                    ),
+                                                )}
+                                            </td>
+                                            <td className="px-4 py-3 text-sm text-slate-600">
+                                                {fmt(
+                                                    getCategoryAverage(
+                                                        g.grades?.project,
+                                                    ),
+                                                )}
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
                             </tbody>
                         </table>
                     )}
                 </div>
             </div>
         </>
-        
     );
 }
 
