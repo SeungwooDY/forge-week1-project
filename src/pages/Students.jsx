@@ -241,11 +241,13 @@ function Students() {
                     />
                 </div>
 
-                <div className="grid grid-cols-12 gap-4 px-6 py-2 text-xs font-semibold uppercase tracking-wider text-slate-400 border-b border-slate-200 mb-2">
+                <div className="grid grid-cols-13 gap-4 px-6 py-2 text-xs font-semibold uppercase tracking-wider text-slate-400 border-b border-slate-200 mb-2">
                     <div className="col-span-4">Name</div>
-                    <div className="col-span-3">Student ID</div>
-                    <div className="col-span-2">Grade</div>
-                    <div className="col-span-3 text-right">Actions</div>
+                    <div className="col-span-1">ID</div>
+                    <div className="col-span-1">Grade</div>
+                    <div className="col-span-2">Birthday</div>
+                    <div className="col-span-3">Address</div>
+                    <div className="col-span-2 text-right">Actions</div>
                 </div>
                 <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
                     {filteredStudents.length === 0 ? (
