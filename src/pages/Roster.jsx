@@ -1,10 +1,11 @@
 import Navbar from "../components/Navbar";
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { getAllStudents, addStudentToClass, getStudentsByClass, removeStudentFromClass } from '../utils/students';
 
 function Roster() {
     const { classId } = useParams();
+    const navigate = useNavigate();
     const [deleteTarget, setDeleteTarget] = useState(null);
     const [enrolled, setEnrolled] = useState([]);
     const [allStudents, setAllStudents] = useState([]);
@@ -53,9 +54,13 @@ function Roster() {
     return (
         <div className="flex flex-col min-h-screen w-full bg-slate-50">
             <Navbar />
-            <div className="flex-1 p-8">
-                <h1 className="text-2xl tracking-tight font-bold text-slate-900 mb-6">
-                    Class Roster
+            <div className="p-6">
+                <button onClick={() => navigate(`/classes/${classId}`)} className="text-sm font-medium text-slate-500 hover:text-slate-800 mb-2 block transition-colors">
+                    Back to Dashboard
+                </button>
+
+                <h1 className="text-xl font-semibold text-slate-800 mb-4">
+                    Students in this class
                 </h1>
     
                 <div className="flex flex-col sm:flex-row gap-3 mb-8">

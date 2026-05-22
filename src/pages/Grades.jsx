@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { getClassById } from "../utils/classes";
 import { getStudentsByClass } from "../utils/students";
@@ -7,6 +7,7 @@ import StudentRow from "../components/StudentRow";
 import Navbar from "../components/Navbar";
 
 function Grades() {
+    const navigate = useNavigate();
     const [classData, setClassData] = useState(null);
     const [students, setStudents] = useState(null);
     const [gradeBook, setGradebook] = useState(null);
@@ -86,6 +87,9 @@ function Grades() {
         <div className="flex flex-col min-h-screen w-full bg-slate-50">
             <Navbar />
             <div className="flex-1 p-8">
+                <button onClick={() => navigate(`/classes/${classId}`)} className="text-sm font-medium text-slate-500 hover:text-slate-800 mb-2 block transition-colors">
+                    Back to Dashboard
+                </button>
                 <div className="py-2 border-b border-slate-200 pb-5 justify-center">
                     <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
                         {classData.cname}
