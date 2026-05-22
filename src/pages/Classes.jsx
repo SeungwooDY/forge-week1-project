@@ -345,7 +345,7 @@ export default function Classes() {
                                                         handleEdit(c);}}
                                                     className="px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100 border border-slate-200 rounded-lg transition-colors cursor-pointer"
                                                 >
-                                                    EDIT
+                                                    Edit
                                                 </button>
                                                 <button
                                                     onClick={(e) => {
@@ -353,7 +353,7 @@ export default function Classes() {
                                                         setDeleteTarget(c);}}
                                                     className="px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 border border-red-200 rounded-lg transition-colors cursor-pointer"
                                                 >
-                                                    DELETE
+                                                    Delete
                                                 </button>
                                             </div>
                                         </td>

@@ -52,13 +52,13 @@ export default function StudentCard({
                 <div className="col-span-2 flex justify-end gap-3">
                     <button
                         onClick={handleEditClick}
-                        className="px-2 py-1 text-xs text-slate-700 hover:bg-slate-100 border border-slate-200 rounded-lg"
+                        className="px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100 border border-slate-200 rounded-lg transition-colors cursor-pointer"
                     >
                         Edit
                     </button>
                     <button
                         onClick={handleDeleteClick}
-                        className="px-2 py-1 text-xs text-red-600 hover:bg-red-50 border border-red-200 rounded-lg"
+                        className="px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 border border-red-200 rounded-lg transition-colors cursor-pointer"
                     >
                         Delete
                     </button>
