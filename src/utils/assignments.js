@@ -32,7 +32,7 @@ export const addAssignment = async (classId, assignmentData) => {
         const existingGrades = studentData.grades || [];
         const category = assignmentData.category;
 
-        const categoryArray = esistingGrades[category] || [];
+        const categoryArray = existingGrades[category] || [];
         categoryArray.push(newGradeEntry);
         existingGrades[category] = categoryArray;
 
