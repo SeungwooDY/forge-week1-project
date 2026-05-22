@@ -130,9 +130,9 @@ function Assignments() {
                                 <button onClick={() => navigate(`/classes/${classId}`)} className="text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors">
                                     Back to Dashboard
                                 </button>
-                                <button onClick={() => navigate('/classes')} className="text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors">
+                                {/* <button onClick={() => navigate('/classes')} className="text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors">
                                     Back to All Classes
-                                </button>
+                                </button> */}
                             </div>
 
                             <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
