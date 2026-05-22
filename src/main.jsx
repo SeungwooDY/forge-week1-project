@@ -8,7 +8,6 @@ import "./index.css";
 import App from "./App.jsx";
 
 import Home from "./pages/Home.jsx";
-import Dashboard from "./pages/Dashboard.jsx";
 import Classes from "./pages/Classes.jsx";
 import ClassPage from "./pages/ClassPage.jsx";
 import Students from "./pages/Students.jsx";
@@ -26,10 +25,6 @@ const router = createBrowserRouter([
             {
                 index: true,
                 element: <Home />,
-            },
-            {
-                path: "dashboard",
-                element: <Dashboard />,
             },
             {
                 path: "classes",
